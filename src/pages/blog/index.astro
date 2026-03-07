@@ -1,0 +1,11 @@
+---
+import Page from "@components/blog/index.svelte";
+import Base from "@layouts/Base.astro";
+import { getPosts } from "@lib/posts";
+
+const posts = await getPosts();
+---
+
+<Base title="Blog">
+    <Page {posts} client:load />
+</Base>

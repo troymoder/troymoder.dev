@@ -1,0 +1,26 @@
+base_url = "https://troymoder.dev"
+title = "troy's bytes"
+compile_sass = true
+build_search_index = true
+generate_feeds = true
+feed_filenames = ["atom.xml"]
+
+taxonomies = [
+    { name = "tags", feed = true },
+]
+
+[markdown]
+highlight_code = true
+highlight_theme = "ayu-light"
+
+[extra]
+author = "Troy Benson"
+menu = [
+    { name = "Home", url = "/" },
+    { name = "Blog", url = "/blog" },
+]
+social = [
+    { name = "GitHub", icon = "github", url = "https://github.com/troymoder" },
+    { name = "Twitter", icon = "twitter", url = "https://twitter.com/troykomodo" },
+    { name = "Email", icon = "mail", url = "mailto:me@troymoder.dev" },
+]

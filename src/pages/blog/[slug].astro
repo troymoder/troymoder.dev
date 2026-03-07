@@ -1,0 +1,22 @@
+---
+import BlogPost from "@components/blog/Post.svelte";
+import Base from "@layouts/Base.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+    const posts = await getCollection("blog");
+    return posts.map(post => ({
+        params: { slug: post.slug },
+        props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter } = await post.render();
+---
+
+<Base title={post.data.title}>
+    <BlogPost {post} {headings} minutesRead={remarkPluginFrontmatter.minutesRead} client:load>
+        <Content />
+    </BlogPost>
+</Base>

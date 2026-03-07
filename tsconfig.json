@@ -1,0 +1,29 @@
+{
+    "extends": "astro/tsconfigs/strict",
+    "compilerOptions": {
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "exactOptionalPropertyTypes": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "baseUrl": ".",
+        "paths": {
+            "@components/*": ["src/components/*"],
+            "@layouts/*": ["src/layouts/*"],
+            "@content/*": ["src/content/*"],
+            "@styles/*": ["src/styles/*"],
+            "@/*": ["src/*"],
+            "@icons/*": ["src/icons/*"],
+            "@lib/*": ["src/lib/*"]
+        }
+    }
+}
