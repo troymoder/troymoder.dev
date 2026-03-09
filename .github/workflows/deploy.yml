@@ -24,10 +24,9 @@ jobs:
         id: download-artifact
         uses: dawidd6/action-download-artifact@v16
         with:
-          workflow: build.yml
           workflow_conclusion: success
           commit: ${{ github.sha }}
-          name: "website"
+          name: website-build
 
       - name: Extract artifact
         run: |
