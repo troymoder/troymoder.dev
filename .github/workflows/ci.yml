@@ -67,6 +67,7 @@ jobs:
   build:
     name: Build
     uses: ./.github/workflows/build.yml
+    permissions: *read-permissions
     secrets: inherit
 
   status:
