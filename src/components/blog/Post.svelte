@@ -2,6 +2,7 @@
     import CopyButton from "@components/CopyButton.svelte";
     import Heading from "@components/Heading.svelte";
     import TableOfContents from "@components/TableOfContents.svelte";
+    import RSSIcon from "@icons/RSS.svelte";
     import type { CollectionEntry } from "astro:content";
     import type { Snippet } from "svelte";
     import { createRawSnippet, mount, onMount } from "svelte";
@@ -101,6 +102,10 @@
             Posted on <time datetime={post.data.date.toISOString()}>{
                 formatDate(post.data.date)
             }</time>
+            <span class="meta-sep">&middot;</span>
+            <a href="/rss.xml" class="rss-link no-underline" aria-label="RSS Feed">
+                <RSSIcon /> RSS
+            </a>
         </div>
 
         {@render children()}
@@ -129,9 +134,31 @@
     }
 
     .meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5em;
       color: var(--color-text-meta);
       font-size: 0.9em;
       margin-block-end: 1.5em;
+    }
+    .meta-sep {
+      color: var(--color-text-muted);
+    }
+    .rss-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25em;
+      color: inherit;
+
+      :global(svg) {
+        width: 0.9em;
+        height: 0.9em;
+      }
+
+      &:hover, &:focus-visible {
+        color: var(--color-primary-hover);
+      }
     }
 
     .tags {
