@@ -21,7 +21,8 @@
         formatter = pkgs.writeShellScriptBin "alejandra" ''
           ${alejandra.defaultPackage.${system}}/bin/alejandra --exclude node_modules "$@"
         '';
-        devShell = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
+          name = "troymoder.dev-shell";
           packages = with pkgs; [
             nodejs_22
             pnpm
