@@ -1,0 +1,19 @@
+name: Build & Deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+  
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    needs: [build]

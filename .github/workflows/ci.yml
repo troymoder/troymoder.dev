@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    permissions: &read-permissions
+      contents: read
+    defaults:
+      run:
+        shell: &shell ${{ github.workspace }}/.github/scripts/nix-shell.sh bash -e {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - &setup-nix
+        name: Setup environment
+        uses: troymoder/shared-actions/setup-nix@b114355b5a126b78c9e19920afa01075a32ee39e
+        with:
+          nix_cache_private_key: ${{ secrets.NIX_CACHE_PRIVATE_KEY }}
+          nix_cache_public_key: ${{ vars.NIX_CACHE_PUBLIC_KEY }}
+          s3_bucket: ${{ vars.S3_CACHE_BUCKET }}
+          s3_endpoint: ${{ vars.S3_CACHE_ENDPOINT }}
+          s3_public_url: ${{ vars.S3_CACHE_PUBLIC_URL }}
+          s3_access_key: ${{ secrets.S3_CACHE_BUCKET_ACCESS_KEY || vars.S3_CACHE_BUCKET_PUBLIC_ACCESS_KEY }}
+          s3_secret_access_key: ${{ secrets.S3_CACHE_BUCKET_SECRET_ACCESS_KEY || vars.S3_CACHE_BUCKET_PUBLIC_SECRET_ACCESS_KEY }}
+
+      - name: Check formatting
+        run: just fmt
+
+      - name: Check for changes
+        run: git diff --exit-code
+
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      deploy: false
+
+  status:
+    name: Status
+    runs-on: ubuntu-latest
+    permissions: *read-permissions
+    needs: [fmt, build]
+    if: ${{ !cancelled() }}
+    steps:
+      - name: Check all jobs
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            exit 1
+          fi

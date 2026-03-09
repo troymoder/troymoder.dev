@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: ${{ github.workspace }}/.github/scripts/nix-shell.sh bash -e {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup environment
+        uses: troymoder/shared-actions/setup-nix@b114355b5a126b78c9e19920afa01075a32ee39e
+        with:
+          nix_cache_private_key: ${{ secrets.NIX_CACHE_PRIVATE_KEY }}
+          nix_cache_public_key: ${{ vars.NIX_CACHE_PUBLIC_KEY }}
+          s3_bucket: ${{ vars.S3_CACHE_BUCKET }}
+          s3_endpoint: ${{ vars.S3_CACHE_ENDPOINT }}
+          s3_public_url: ${{ vars.S3_CACHE_PUBLIC_URL }}
+          s3_access_key: ${{ secrets.S3_CACHE_BUCKET_ACCESS_KEY || vars.S3_CACHE_BUCKET_PUBLIC_ACCESS_KEY }}
+          s3_secret_access_key: ${{ secrets.S3_CACHE_BUCKET_SECRET_ACCESS_KEY || vars.S3_CACHE_BUCKET_PUBLIC_SECRET_ACCESS_KEY }}
+
+      - name: Build
+        run: |
+          set -eo pipefail
+          just build
+          tar -czf website.tar.gz dist
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          path: 'website.tar.gz'
+          name: 'website'
