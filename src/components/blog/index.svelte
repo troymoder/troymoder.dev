@@ -1,6 +1,7 @@
 <script lang="ts">
     import PostList from "@components/blog/PostList.svelte";
     import Heading from "@components/Heading.svelte";
+    import RSSIcon from "@icons/RSS.svelte";
     import type { Post } from "@lib/posts";
     import { onMount } from "svelte";
 
@@ -126,7 +127,13 @@
     });
 </script>
 
-<Heading level={1} id="blog">Blog</Heading>
+<div class="blog-header">
+    <Heading level={1} id="blog">Blog</Heading>
+    <a href="/rss.xml" class="rss-link no-underline" aria-label="RSS Feed" target="_blank">
+        <RSSIcon />
+        <span>RSS</span>
+    </a>
+</div>
 
 <div class="search-container">
     <input
@@ -155,6 +162,35 @@
 <PostList posts={filteredPosts} {activeTag} onTagClick={handleTagClick} />
 
 <style>
+    .blog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.5rem 0;
+
+      :global(h1) {
+        margin-block: 0;
+      }
+    }
+    .rss-link {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: var(--border-radius);
+      font-size: 0.9rem;
+
+      :global(svg) {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      &:hover, &:focus-visible {
+        background-color: var(--color-primary-hover);
+        color: white;
+      }
+    }
     .search-container {
       position: relative;
       margin-block-end: 1rem;

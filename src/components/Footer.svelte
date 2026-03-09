@@ -1,6 +1,7 @@
 <script lang="ts">
     import GitHubIcon from "@icons/GitHub.svelte";
     import MailIcon from "@icons/Mail.svelte";
+    import RSSIcon from "@icons/RSS.svelte";
     import TwitterIcon from "@icons/Twitter.svelte";
     import type { Component } from "svelte";
 
@@ -14,6 +15,7 @@
         { name: "GitHub", icon: GitHubIcon, url: "https://github.com/troykomodo" },
         { name: "Twitter", icon: TwitterIcon, url: "https://twitter.com/troykomodo" },
         { name: "Email", icon: MailIcon, url: "mailto:me@troymoder.dev" },
+        { name: "RSS", icon: RSSIcon, url: "/rss.xml" },
     ];
 
     const year = new Date().getFullYear();
