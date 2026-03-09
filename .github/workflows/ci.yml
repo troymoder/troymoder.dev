@@ -38,6 +38,9 @@ jobs:
           s3_access_key: ${{ secrets.S3_CACHE_BUCKET_ACCESS_KEY || vars.S3_CACHE_BUCKET_PUBLIC_ACCESS_KEY }}
           s3_secret_access_key: ${{ secrets.S3_CACHE_BUCKET_SECRET_ACCESS_KEY || vars.S3_CACHE_BUCKET_PUBLIC_SECRET_ACCESS_KEY }}
 
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Check formatting
         run: just fmt
 
@@ -45,6 +48,7 @@ jobs:
         run: git diff --exit-code
 
   build:
+    name: Build
     uses: ./.github/workflows/build.yml
     secrets: inherit
 
