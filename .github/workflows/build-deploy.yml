@@ -10,10 +10,12 @@ permissions:
 
 jobs:
   build:
+    name: Build
     uses: ./.github/workflows/build.yml
     secrets: inherit
 
   deploy:
+    name: Deploy
     uses: ./.github/workflows/deploy.yml
     secrets: inherit
     needs: [build]
