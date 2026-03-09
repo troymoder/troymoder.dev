@@ -159,7 +159,14 @@
     </div>
 {/if}
 
-<PostList posts={filteredPosts} {activeTag} onTagClick={handleTagClick} />
+{#if filteredPosts.length > 0}
+    <PostList posts={filteredPosts} {activeTag} onTagClick={handleTagClick} />
+{:else}
+    <p class="no-posts-found">No posts yet.</p>
+    <p class="no-posts-found-hint">
+        Subscribe to the RSS feed to get notified when new posts are published.
+    </p>
+{/if}
 
 <style>
     .blog-header {
@@ -245,5 +252,20 @@
         background-color: var(--color-primary-hover);
         color: white;
       }
+    }
+
+    .no-posts-found {
+      text-align: center;
+      font-size: 1.2rem;
+      color: var(--color-text-muted);
+      margin-block: 2rem;
+      font-weight: bold;
+    }
+
+    .no-posts-found-hint {
+      text-align: center;
+      color: var(--color-text-muted);
+      margin-block: 0.5rem;
+      font-weight: lighter;
     }
 </style>
