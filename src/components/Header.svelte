@@ -49,7 +49,7 @@
         troy's bytes
     </a>
     <nav class="nav-items">
-        {#each navItems as item}
+        {#each navItems as item (item.url)}
             <a
                 href={item.url}
                 class="no-underline"
@@ -60,7 +60,7 @@
 </header>
 <nav class="breadcrumb-bar" aria-label="Breadcrumb">
     <span class="breadcrumb">
-        {#each breadcrumbSegments as segment, i}
+        {#each breadcrumbSegments as segment, i (segment.href)}
             <a class="no-underline" href={segment.href}>{
                 segment.name
             }</a>{#if i < breadcrumbSegments.length - 1}<span class="slash">/</span>{/if}

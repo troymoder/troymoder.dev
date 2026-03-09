@@ -21,7 +21,7 @@
 
 <footer>
     <div class="footer-socials">
-        {#each socials as link}
+        {#each socials as link (link.name)}
             <a href={link.url} class="soc" aria-label={link.name} target="_blank" rel="me">
                 <link.icon />
             </a>

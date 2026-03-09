@@ -26,7 +26,7 @@
 </script>
 
 <ul class="post-list">
-    {#each posts as post}
+    {#each posts as post (post.slug)}
         <li>
             <div class="post-header">
                 <a href={`/blog/${post.slug}`} class="post-title no-underline">{post.data.title}</a>
@@ -39,8 +39,8 @@
                     {formatDate(post.data.date)}
                 </time>
                 {#if post.data.tags?.length}
-                    {" · "}
-                    {#each post.data.tags as tag, i}
+                    <span class="separator"> · </span>
+                    {#each post.data.tags as tag, i (tag)}
                         <a
                             href={`/blog?tag=${tag}`}
                             class="post-tag no-underline"

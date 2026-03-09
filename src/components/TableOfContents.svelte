@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import { SvelteSet } from "svelte/reactivity";
 
     type TocItem = {
         id: string;
@@ -15,7 +16,7 @@
     const { items, smooth = true }: Props = $props();
 
     let mobileOpen = $state(false);
-    let activeSlugs = $state<Set<string>>(new Set());
+    const activeSlugs = new SvelteSet<string>();
     let tocList = $state<HTMLElement | null>(null);
 
     function handleClick(e: MouseEvent, id: string, index: number) {
@@ -87,7 +88,7 @@
     }
 
     function getVisibleItems(): Set<string> {
-        const visible = new Set<string>();
+        const visible = new SvelteSet<string>();
         const viewportHeight = window.innerHeight;
         const scrollY = window.scrollY;
         const activationLine = viewportHeight * 0.2;
@@ -125,7 +126,8 @@
 
     function onScroll() {
         const visible = getVisibleItems();
-        activeSlugs = visible;
+        activeSlugs.clear();
+        visible.forEach(id => activeSlugs.add(id));
         updateIndicator(visible);
     }
 
@@ -136,7 +138,8 @@
 
         setTimeout(() => {
             const visible = getVisibleItems();
-            activeSlugs = visible;
+            activeSlugs.clear();
+            visible.forEach(id => activeSlugs.add(id));
             updateIndicator(visible);
         }, 50);
 
@@ -173,7 +176,7 @@
         {#if mobileOpen}
             <nav id="toc-mobile-nav" class="toc-mobile-nav">
                 <ul>
-                    {#each items as item, i}
+                    {#each items as item, i (item.id)}
                         <li style:padding-inline-start="{((item.depth ?? 2) - 2) * 0.75}rem">
                             <a
                                 href={`#${item.id}`}
@@ -193,7 +196,7 @@
         <nav class="toc">
             <ul bind:this={tocList}>
                 <div class="toc-indicator"></div>
-                {#each items as item, i}
+                {#each items as item, i (item.id)}
                     <li
                         class:active={activeSlugs.has(item.id)}
                         style:padding-inline-start="{((item.depth ?? 2) - 2) * 0.75}rem">

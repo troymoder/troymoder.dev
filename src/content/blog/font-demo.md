@@ -132,15 +132,6 @@ const fn = () => x !== y && a <= b || c >= d;
 
 The ligatures above combine characters like `=>`, `!==`, `&&`, `<=`, `||`, and `>=` into single glyphs for improved readability.
 
-## Pangrams for Testing
-
-```
-English: The quick brown fox jumps over the lazy dog
-German: Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich
-French: Portez ce vieux whisky au juge blond qui fume
-Spanish: El veloz murciélago hindú comía feliz cardillo y kiwi
-```
-
 ## ASCII Art Test
 
 <div style="text-align: center">

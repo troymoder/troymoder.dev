@@ -108,7 +108,7 @@
         {#if post.data.tags?.length}
             <hr />
             <ul class="tags">
-                {#each post.data.tags as tag}
+                {#each post.data.tags as tag (tag)}
                     <li><a href={`/blog?tag=${tag}`}>{tag}</a></li>
                 {/each}
             </ul>
