@@ -92,9 +92,11 @@
     </li>
 </ul>
 
-<Heading id="recent-posts">Recent Posts</Heading>
-<PostList {posts} showReadMore={false} />
-<a href="/blog" class="no-underline">All posts ⤴</a>
+{#if posts.length > 0}
+    <Heading id="recent-posts">Recent Posts</Heading>
+    <PostList {posts} showReadMore={false} />
+    <a href="/blog" class="no-underline">All posts ⤴</a>
+{/if}
 
 <Heading id="ai">Stance on AI</Heading>
 <p>

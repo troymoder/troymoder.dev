@@ -2,7 +2,6 @@
     import CopyButton from "@components/CopyButton.svelte";
     import Heading from "@components/Heading.svelte";
     import TableOfContents from "@components/TableOfContents.svelte";
-    import RSSIcon from "@icons/RSS.svelte";
     import type { CollectionEntry } from "astro:content";
     import type { Snippet } from "svelte";
     import { createRawSnippet, mount, onMount } from "svelte";
@@ -103,9 +102,6 @@
                 formatDate(post.data.date)
             }</time>
             <span class="meta-sep">&middot;</span>
-            <a href="/rss.xml" class="rss-link no-underline" aria-label="RSS Feed">
-                <RSSIcon /> RSS
-            </a>
         </div>
 
         {@render children()}
