@@ -1,25 +1,33 @@
 import type { APIRoute } from "astro";
-import { execSync } from "child_process";
-import { readFileSync, unlinkSync } from "fs";
-import { tmpdir } from "os";
-import { join } from "path";
+import { spawn } from "child_process";
+import resume from "../content/resume.typ?raw";
 
-export const GET: APIRoute = async () => {
-    const typFile = join(process.cwd(), "src/content/resume.typ");
-    const outFile = join(tmpdir(), `resume-${Date.now()}.pdf`);
+export const GET: APIRoute = () => {
+    return new Promise((resolve) => {
+        const child = spawn("typst", ["compile", "--format=pdf", "-", "-"]);
 
-    try {
-        execSync(`typst compile ${typFile} ${outFile}`, { stdio: "pipe" });
-        const pdf = readFileSync(outFile);
-        unlinkSync(outFile);
+        const chunks: Buffer[] = [];
+        let stderr = "";
 
-        return new Response(pdf, {
-            headers: {
-                "Content-Type": "application/pdf",
-                "Content-Disposition": "inline; filename=resume.pdf",
-            },
+        child.stdout.on("data", (chunk) => chunks.push(chunk));
+        child.stderr.on("data", (chunk) => (stderr += chunk.toString()));
+
+        child.on("close", (code) => {
+            if (code !== 0) {
+                resolve(new Response(`Typst compilation failed: ${stderr}`, { status: 500 }));
+            } else {
+                resolve(
+                    new Response(Buffer.concat(chunks), {
+                        headers: {
+                            "Content-Type": "application/pdf",
+                            "Content-Disposition": "inline; filename=resume.pdf",
+                        },
+                    }),
+                );
+            }
         });
-    } catch (e) {
-        return new Response(`Typst compilation failed: ${e}`, { status: 500 });
-    }
+
+        child.stdin.write(resume);
+        child.stdin.end();
+    });
 };
