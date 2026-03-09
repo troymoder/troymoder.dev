@@ -27,7 +27,7 @@ jobs:
           workflow: build.yml
           workflow_conclusion: success
           commit: ${{ github.sha }}
-          name: 'website'
+          name: "website"
 
       - name: Extract artifact
         run: |
@@ -40,7 +40,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: 'dist'
+          path: "dist"
 
       - name: Deploy to GitHub Pages
         id: deployment
