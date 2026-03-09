@@ -2,10 +2,12 @@
 import Page from "@components/index.svelte";
 import Base from "@layouts/Base.astro";
 import { getPosts } from "@lib/posts";
+import { getProjects } from "@lib/projects";
 
 const posts = await getPosts();
+const projects = await getProjects();
 ---
 
 <Base>
-    <Page {posts} />
+    <Page {posts} {projects} />
 </Base>

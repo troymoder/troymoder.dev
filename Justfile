@@ -8,6 +8,7 @@ fmt:
 
 lint:
     pnpm lint
+    typos
 
 audit:
     pnpm audit

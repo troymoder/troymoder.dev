@@ -142,7 +142,7 @@
 
 {#if tagEntries.length > 0}
     <div class="filter-tags">
-        {#each tagEntries as [tag, count]}
+        {#each tagEntries as [tag, count] (tag)}
             <a
                 href={`/blog?tag=${tag}`}
                 class="tag-link no-underline"

@@ -9,7 +9,7 @@ import {
 } from "@shikijs/transformers";
 import pagefind from "astro-pagefind";
 import { defineConfig } from "astro/config";
-import { rehypeHeadingAnchors } from "./plugins/rehype.mjs";
+import { rehypeExternalLinks, rehypeHeadingAnchors } from "./plugins/rehype.mjs";
 import { remarkReadingTime } from "./plugins/remark.mjs";
 import { transformerCopyButton } from "./plugins/shiki.mjs";
 
@@ -29,7 +29,7 @@ export default defineConfig({
             ],
         },
         remarkPlugins: [remarkReadingTime],
-        rehypePlugins: [rehypeHeadingAnchors],
+        rehypePlugins: [rehypeHeadingAnchors, rehypeExternalLinks],
     },
     vite: {
         server: {
