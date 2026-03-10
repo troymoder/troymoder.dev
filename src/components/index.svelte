@@ -91,7 +91,8 @@
             href="https://www.instagram.com/troyzzzzzzz">instagram</ExternalLink>
     </li>
     <li>
-        if you haven't deleted <ExternalLink href="https://linkedin.com/in/troy-benson">linkedin</ExternalLink> yet.
+        if you haven't deleted <ExternalLink
+            href="https://linkedin.com/in/troy-benson">linkedin</ExternalLink> yet.
     </li>
 </ul>
 
