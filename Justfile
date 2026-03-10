@@ -5,6 +5,7 @@ fmt:
     dprint fmt
     just --unstable --fmt
     nix fmt .
+    typstyle -i .
 
 lint:
     pnpm lint
