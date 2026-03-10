@@ -141,21 +141,6 @@
     .meta-sep {
       color: var(--color-text-muted);
     }
-    .rss-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25em;
-      color: inherit;
-
-      :global(svg) {
-        width: 0.9em;
-        height: 0.9em;
-      }
-
-      &:hover, &:focus-visible {
-        color: var(--color-primary-hover);
-      }
-    }
 
     .tags {
       display: flex;
