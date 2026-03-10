@@ -32,6 +32,7 @@
             just
             miniserve
             typos
+            typstyle
           ];
           shellHook = ''
             export TYPST_FONT_PATHS="${pkgs.jetbrains-mono}/share/fonts"
