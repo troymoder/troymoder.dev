@@ -23,7 +23,7 @@
 </p>
 <p>
     My name is Troy, a software engineer who enjoys infrastructure. Currently working at
-    <ExternalLink href="https://paravision.ai">Paravision</ExternalLink>, where I preform various
+    <ExternalLink href="https://paravision.ai">Paravision</ExternalLink>, where I perform various
     roles but mainly working on our facial recognition software.
 </p>
 <p>
