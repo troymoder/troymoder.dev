@@ -33,7 +33,10 @@
 #text(size: 1.2em)[Software Engineer]
 
 #v(0.6em)
-#link("mailto:me@troymoder.dev")[me\@troymoder.dev] · #link("https://github.com/troykomodo")[github.com/troykomodo] · #link("https://troymoder.dev")[troymoder.dev]
+#align(center)[
+  #link("mailto:me@troymoder.dev")[me\@troymoder.dev] · #link("https://github.com/troykomodo")[github.com/troykomodo] · #link("https://troymoder.dev")[troymoder.dev] \
+  #link("https://linkedin.com/in/troy-benson")[linkedin.com/in/troy-benson]
+]
 
 #v(0.6em)
 #line(length: 100%, stroke: 0.8pt)
