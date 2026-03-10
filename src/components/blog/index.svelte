@@ -164,7 +164,7 @@
 {:else}
     <p class="no-posts-found">No posts yet.</p>
     <p class="no-posts-found-hint">
-        Subscribe to the RSS feed to get notified when new posts are published.
+        Subscribe to my RSS feed to get notified I write something.
     </p>
 {/if}
 
