@@ -7,7 +7,7 @@
 
     type Props = {
         posts: Post[];
-        projects: CollectionEntry<"projects">[];
+        projects: CollectionEntry<"project">[];
     };
 
     const { posts: allPosts, projects }: Props = $props();
