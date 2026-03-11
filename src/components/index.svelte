@@ -107,12 +107,11 @@
     I think LLMs / coding assistants are very powerful tools when used correctly. AI in the hands of
     an experienced developer can be extremely productive. I have an issue with people who misuse AI
     to write code they do not understand ("ai slop") and generative AI is in terms of "art" is
-    disgusting and gross. I think using LLMs to generate blogs and messages to other people trying
-    to pass off as their own work is abhorrent. Anyone who has any critical thinking skills should
-    be aware that we are currently in an ai-bubble, the tech & investor industry believes generative
-    AI to be far more useful than it actually is. I believe that sometime in the near future we are
-    going to have a massive crash and a lot of (good and some bad) companies will go out of
-    business.
+    disgusting and gross. I think LLMs are not very good at writing blogs or documents meant to be
+    read by humans. I think if everyone is just honest with themselves about the fact that we are
+    currently in an ai-bubble, and that LLMs are useful but not nearly as useful as they are made
+    out to be. The tech & investor industry is overhyping AI, Nvidia is Cisco. I think OpenAI is one
+    of the worst companies in the tech industry especially after 4o.
 </p>
 
 <Heading id="credits">Credits</Heading>
