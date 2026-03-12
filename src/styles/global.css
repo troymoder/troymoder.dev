@@ -78,19 +78,27 @@ a:hover, a:focus-visible {
 
 ul {
   list-style: none;
-  padding: 0;
+  padding: 0.25em;
 }
 
 ul li {
   padding: 0;
-}
-
-ul > li::before {
-  content: "* ";
-  font-weight: bold;
-  color: var(--color-text-muted);
-  top: 0.05ch;
   position: relative;
+  margin-block-end: 0.5em;
+  &::before {
+    content: "*";
+    font-weight: bold;
+    color: var(--color-text-muted);
+    position: absolute;
+    left: -1.75ch;
+  }
+  > p:first-child {
+    margin-block-start: 0;
+    display: inline;
+  }
+  > p:last-child {
+    margin-block-end: 0;
+  }
 }
 
 ol {
@@ -112,29 +120,49 @@ code {
 }
 
 pre {
+  --space-left-code: 3em;
   background-color: var(--color-background-pre);
   line-height: 1.4;
-  overflow-x: auto;
-  padding: 1em;
   border-radius: var(--border-radius);
   border: 1px solid var(--color-border);
+  width: calc(100% + var(--space-left-code));
+  margin-left: calc(-1 * var(--space-left-code) - 0.5em);
+  counter-reset: line;
   position: relative;
-  margin-left: -1.05em;
-  width: calc(100% + 2em);
-}
 
-pre code {
-  background-color: transparent;
-  color: inherit;
-  font-size: 100%;
-  padding: 0;
-}
+  &[data-no-lines] {
+    --space-left-code: 1.25em;
+  }
 
-pre .line {
-  display: inline-block;
-  width: calc(100% + 2em);
-  margin: 0 -1em;
-  padding: 0 1em;
+  &[data-no-lines][data-no-fold] {
+    --space-left-code: 0em;
+  }
+
+  code {
+    padding: 1em 0;
+    background-color: transparent;
+    color: inherit;
+    font-size: 100%;
+    display: grid;
+    overflow-x: auto;
+    margin-left: var(--space-left-code);
+    width: calc(100% - var(--space-left-code));
+  }
+
+  .line {
+    padding-right: 1em;
+    padding-left: 0.5em;
+    display: flex;
+    min-height: 1lh;
+    max-height: 1lh;
+    min-width: fit-content;
+
+    &.hidden {
+      min-height: 0;
+      max-height: 0;
+      visibility: hidden;
+    }
+  }
 }
 
 pre .line.highlighted {
@@ -149,21 +177,6 @@ pre .line.diff.remove {
   background-color: rgba(248, 81, 73, 0.2);
 }
 
-pre .line.focused {
-  background-color: rgba(249, 200, 155, 0.4);
-}
-
-pre:has(.line.focused) .line:not(.focused) {
-  opacity: 0.5;
-  filter: blur(0.8px);
-  transition: opacity 0.3s, filter 0.3s;
-}
-
-pre:has(.line.focused):hover .line:not(.focused) {
-  opacity: 1;
-  filter: none;
-}
-
 pre .line.highlighted.error {
   background-color: rgba(196, 76, 65, 0.3);
 }
@@ -174,6 +187,14 @@ pre .line.highlighted.warning {
 
 pre .line.highlighted.info {
   background-color: rgba(91, 201, 238, 0.3);
+}
+
+pre .highlighted-word {
+  background-color: rgba(249, 200, 155, 0.5);
+  border-radius: 3px;
+  padding: 0.1em 0.15em;
+  margin: -0.1em -0.15em;
+  font-weight: 600;
 }
 
 .content {

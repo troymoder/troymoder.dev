@@ -29,9 +29,6 @@
 
 <style>
     .copy-button {
-      position: absolute;
-      top: 0.5em;
-      right: 0.5em;
       padding: 0.35em;
       background-color: var(--color-background);
       border: 1px solid var(--color-border);
@@ -43,19 +40,23 @@
       align-items: center;
       justify-content: center;
       color: var(--color-text-muted);
+      z-index: 1;
+      font: inherit;
 
       &.copied {
         opacity: 1;
         background-color: var(--color-primary);
         color: white;
       }
-    }
 
-    :global(pre):hover .copy-button {
-      opacity: 1;
       &:hover {
+        opacity: 1;
         background-color: var(--color-primary);
         color: white;
       }
+    }
+
+    :global(.code-block):hover .copy-button {
+      opacity: 1;
     }
 </style>

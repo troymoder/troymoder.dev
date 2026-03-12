@@ -1,20 +1,15 @@
 <script lang="ts">
-    import CopyButton from "@components/CopyButton.svelte";
+    import CodeBlock from "@components/CodeBlock.svelte";
     import Heading from "@components/Heading.svelte";
     import TableOfContents from "@components/TableOfContents.svelte";
+    import type { MarkdownHeading } from "astro";
     import type { CollectionEntry } from "astro:content";
     import type { Snippet } from "svelte";
     import { createRawSnippet, mount, onMount } from "svelte";
 
-    type HeadingItem = {
-        depth: number;
-        slug: string;
-        text: string;
-    };
-
     type Props = {
         post: CollectionEntry<"blog">;
-        headings?: HeadingItem[];
+        headings?: MarkdownHeading[];
         minutesRead?: string;
         children: Snippet;
     };
@@ -37,22 +32,9 @@
         });
     }
 
-    export function hydrateCodeBlocks() {
-        document.querySelectorAll("pre[data-copy]").forEach((pre) => {
-            const code = pre.querySelector("code");
-            if (!code) return;
-            mount(CopyButton, {
-                target: pre,
-                props: {
-                    getCode: () => code.textContent || "",
-                },
-            });
-        });
-    }
-
     const levelMap: Record<string, 1 | 2 | 3 | 4> = { H1: 1, H2: 2, H3: 3, H4: 4 };
 
-    export function hydrateHeadingAnchors() {
+    function hydrateHeadingAnchors() {
         document.querySelectorAll(
             "h1[data-heading-anchor], h2[data-heading-anchor], h3[data-heading-anchor], h4[data-heading-anchor]",
         ).forEach((heading) => {
@@ -64,12 +46,12 @@
 
             const span = document.createElement("span");
             span.innerHTML = heading.innerHTML;
+
             const children = createRawSnippet(() => ({
                 render: () => span.outerHTML,
             }));
 
             const wrapper = document.createElement("div");
-            heading.replaceWith(wrapper);
             mount(Heading, {
                 target: wrapper,
                 props: {
@@ -78,7 +60,28 @@
                     children,
                 },
             });
-            wrapper.replaceWith(...wrapper.childNodes);
+            heading.replaceWith(...wrapper.childNodes);
+        });
+    }
+
+    function hydrateCodeBlocks() {
+        document.querySelectorAll("pre[data-code-block]").forEach((block) => {
+            const outerHTML = block.outerHTML;
+            const children = createRawSnippet(() => ({
+                render: () => outerHTML,
+            }));
+
+            const wrapper = document.createElement("div");
+
+            const showLines = !block.hasAttribute("data-no-lines");
+            const showFold = !block.hasAttribute("data-no-fold");
+
+            mount(CodeBlock, {
+                target: wrapper,
+                props: { children, showLines, showFold },
+            });
+
+            block.replaceWith(...wrapper.childNodes);
         });
     }
 
