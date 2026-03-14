@@ -102,12 +102,17 @@
         }
     });
 
+    function getCode(codeElement: HTMLElement) {
+      const cloned = codeElement.cloneNode(true) as HTMLElement;
+      cloned.querySelectorAll(".line.remove")?.forEach((el) => el.remove());
+      return `${cloned.textContent?.trim() ?? ""}\n`;
+    }
+
     onMount(() => {
         const codeElement = thisElement.querySelector("code");
         if (!codeElement) return;
-        code = codeElement.textContent?.trim() || "";
-        code += "\n";
 
+        code = getCode(codeElement);
         lineElements.push(...codeElement.querySelectorAll<HTMLElement>(".line"));
 
         lineElements.forEach((el, index) => {

@@ -151,7 +151,7 @@ pre {
 
   .line {
     padding-right: 1em;
-    padding-left: 0.5em;
+    padding-left: 0.25em;
     display: flex;
     min-height: 1lh;
     max-height: 1lh;
