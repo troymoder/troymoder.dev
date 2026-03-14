@@ -4,6 +4,7 @@ import { pluginBlockConfig } from "./block-config.ts";
 import { pluginClickLinks } from "./click-links.ts";
 import { pluginCodeAnchors } from "./code-anchors.ts";
 import { pluginCopyWithoutDeleted } from "./copy-without-deleted.ts";
+import { pluginDiffStyle } from "./diff-style.ts";
 import { pluginHoverAnnotations } from "./hover-annotations.ts";
 import { pluginIndentFold } from "./indent-fold.ts";
 import { pluginLineCallouts } from "./line-callouts.ts";
@@ -16,6 +17,7 @@ export default defineEcConfig({
         pluginBlockConfig(),
         pluginClickLinks(),
         pluginCodeAnchors(),
+        pluginDiffStyle(),
         pluginHoverAnnotations(),
         pluginIndentFold(),
         pluginLineCallouts(),

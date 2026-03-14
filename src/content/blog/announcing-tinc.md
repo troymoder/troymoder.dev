@@ -453,13 +453,13 @@ macro to be from `tinc` instead of `tonic`.
           request: Request<PingRequest>,
       ) -> Result<Response<PingResponse>, Status> {
           let req = request.into_inner();
-   
+
           if !req.message.starts_with("hello:") {
               return Err(Status::invalid_argument(
                   "message must start with 'hello:'",
               ));
           }
-          
+
           Ok(Response::new(PingResponse {
               response: format!("Pong: {}", req.message),
           }))
