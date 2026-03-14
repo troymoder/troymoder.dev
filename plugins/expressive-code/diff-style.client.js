@@ -6,21 +6,23 @@ function handleToggleClick(e) {
     const block = btn.closest(".expressive-code");
     if (!toggle || !block) return;
 
-    const view = btn.dataset.view;
+    const figure = block.querySelector("figure");
+    if (!figure) return;
+
+    const view = btn.getAttribute("data-view") || btn.dataset.view || btn.textContent.toLowerCase().trim();
     toggle.querySelectorAll("button").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
 
-    block.removeAttribute("data-diff-unified");
-    block.removeAttribute("data-diff-old");
-    block.removeAttribute("data-diff-new");
+    figure.setAttribute("data-diff-view", view);
 
-    if (view === "unified") {
-        block.setAttribute("data-diff-unified", "");
-    } else if (view === "old") {
-        block.setAttribute("data-diff-old", "");
-    } else if (view === "new") {
-        block.setAttribute("data-diff-new", "");
-    }
+    figure.querySelectorAll("pre[data-view]").forEach(pre => {
+        const preView = pre.getAttribute("data-view");
+        if (preView === view) {
+            pre.removeAttribute("data-no-copy");
+        } else {
+            pre.setAttribute("data-no-copy", "");
+        }
+    });
 }
 
 document.addEventListener("click", handleToggleClick);

@@ -1,16 +1,15 @@
 function getCodeWithoutDeleted(figure) {
-    const codeLines = figure.querySelectorAll(".ec-line");
+    const fig = figure.cloneNode(true);
+    fig.querySelectorAll("[data-no-copy]").forEach((el) => el.remove());
+
+    const codeLines = fig.querySelectorAll(".ec-line");
     const lines = [];
     for (const line of codeLines) {
-        if (!line.classList.contains("del")) {
-            const codeEl = line.querySelector(".code");
-            if (codeEl) {
-                const clone = codeEl.cloneNode(true);
-                clone.querySelectorAll("[data-no-copy]").forEach((el) => el.remove());
-                let text = clone.textContent || "";
-                text = text.replace(/\n$/, "");
-                lines.push(text);
-            }
+        const codeEl = line.querySelector(".code");
+        if (codeEl) {
+            let text = codeEl.textContent || "";
+            text = text.replace(/\n$/, "");
+            lines.push(text);
         }
     }
     return lines.join("\n");

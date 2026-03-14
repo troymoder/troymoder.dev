@@ -11,7 +11,7 @@
 .expressive-code .ec-line.ins,
 .expressive-code .ec-line.del {
   .code {
-    margin-left: -2px;
+    margin-inline-start: -3px;
     &::before {
       left: -1ch;
     }
@@ -60,50 +60,17 @@
   }
 }
 
-.expressive-code[data-diff-unified] {
-  .ec-line.del {
-    opacity: 0.6;
-
-    .code {
-      text-decoration: line-through;
-      text-decoration-color: rgba(215, 58, 73, 0.5);
-    }
-  }
-
-  .ec-line.ins {
-    font-weight: 500;
-  }
-
-  .ec-line.del .gutter .diff,
-  .ec-line.ins .gutter .diff {
-    display: none;
-  }
+figure pre[data-view="old"],
+figure pre[data-view="new"] {
+  display: none;
 }
 
-.expressive-code[data-diff-old] {
-  .ec-line.ins {
-    display: none;
-  }
-
-  .ec-line.del {
-    background: transparent;
-
-    .gutter .diff {
-      display: none;
-    }
-  }
+.expressive-code figure[data-diff-view="old"] pre[data-view="unified"],
+.expressive-code figure[data-diff-view="new"] pre[data-view="unified"] {
+  display: none;
 }
 
-.expressive-code[data-diff-new] {
-  .ec-line.del {
-    display: none;
-  }
-
-  .ec-line.ins {
-    background: transparent;
-
-    .gutter .diff {
-      display: none;
-    }
-  }
+.expressive-code figure[data-diff-view="old"] pre[data-view="old"],
+.expressive-code figure[data-diff-view="new"] pre[data-view="new"] {
+  display: block;
 }

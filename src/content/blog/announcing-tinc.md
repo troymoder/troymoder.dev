@@ -433,7 +433,7 @@ our example.
 ```
 
 The code for the rust side is almost the same, except we just change the include
-macro to be from `tinc` instead of `tonic`.
+macro to be from `tinc` instead of `tonic`.ss
 
 ```diff lang="rs"
   pub mod pb {
