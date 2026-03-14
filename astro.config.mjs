@@ -3,9 +3,9 @@ import svelte from "@astrojs/svelte";
 import astroExpressiveCode from "astro-expressive-code";
 import pagefind from "astro-pagefind";
 import { defineConfig } from "astro/config";
+import expressiveConfig from "./plugins/expressive-code/config.ts";
 import { rehypeExternalLinks, rehypeHeadingAnchors } from "./plugins/rehype.mjs";
 import { remarkReadingTime } from "./plugins/remark.mjs";
-import expressiveConfig from "./plugins/expressive-code/config.ts";
 
 function restartOnEcPluginChange() {
     return {

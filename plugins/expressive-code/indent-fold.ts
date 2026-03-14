@@ -1,7 +1,8 @@
 import { AttachedPluginData, type ExpressiveCodePlugin } from "astro-expressive-code";
 import type { Element } from "hast";
-import indentFoldCss from "./indent-fold.css?raw";
+import { getSection, pluginBlockConfigData } from "./block-config";
 import indentFoldClient from "./indent-fold.client.js?raw";
+import indentFoldCss from "./indent-fold.css?raw";
 
 interface FoldRegion {
     start: number;
@@ -14,14 +15,13 @@ function getIndent(text: string): number {
     return match?.[1]?.length ?? 0;
 }
 
-function parseCollapseMeta(meta: string): Set<number> {
+function parseCollapseSection(lines: string[]): Set<number> {
     const collapsed = new Set<number>();
-    const match = meta.match(/collapse=\{([^}]+)\}/);
-    if (!match) return collapsed;
-    
-    const parts = match[1]!.split(",");
-    for (const part of parts) {
-        const trimmed = part.trim();
+
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
         const rangeMatch = trimmed.match(/^(\d+)-(\d+)$/);
         if (rangeMatch) {
             const start = parseInt(rangeMatch[1]!, 10);
@@ -36,6 +36,7 @@ function parseCollapseMeta(meta: string): Set<number> {
             }
         }
     }
+
     return collapsed;
 }
 
@@ -91,20 +92,13 @@ function parseRegions(lines: string[], collapsedLines: Set<number>): FoldRegion[
     });
 }
 
-
 interface PluginIndentFoldData {
     foldRegions: FoldRegion[];
 }
 
-// Create a singleton instance that allows attaching this type of data
-// to any object and to retrieve it later.
-// Note: Exporting is optional. This can be useful if multiple plugins
-//       need to work together.
 export const pluginIndentFoldData = new AttachedPluginData<PluginIndentFoldData>(
-    // This function initializes the attached data
-    // in case nothing was attached to an object yet
-    () => ({ foldRegions: [] })
-  )
+    () => ({ foldRegions: [] }),
+);
 
 export function pluginIndentFold(): ExpressiveCodePlugin {
     return {
@@ -113,14 +107,15 @@ export function pluginIndentFold(): ExpressiveCodePlugin {
         jsModules: [indentFoldClient],
         hooks: {
             preprocessCode: ({ codeBlock }) => {
-                const meta = codeBlock.meta || "";
-                const collapsedLines = parseCollapseMeta(meta);
+                const blockConfigData = pluginBlockConfigData.getOrCreateFor(codeBlock);
+                const collapseLines = getSection(blockConfigData.sections, "collapse");
+                const collapsedLines = collapseLines ? parseCollapseSection(collapseLines) : new Set<number>();
+
                 const lines = codeBlock.getLines().map((line) => line.text);
                 const regions = parseRegions(lines, collapsedLines);
-                
+
                 if (regions.length === 0) return;
                 const data = pluginIndentFoldData.getOrCreateFor(codeBlock);
-
                 data.foldRegions = regions;
             },
             postprocessRenderedLine: ({ codeBlock, lineIndex, renderData }) => {
@@ -135,7 +130,7 @@ export function pluginIndentFold(): ExpressiveCodePlugin {
                 lineAst.properties["data-line-num"] = String(lineIndex);
 
                 const isInsideCollapsedRegion = foldRegions.some(
-                    r => r.collapsed && lineIndex > r.start && lineIndex <= r.end
+                    r => r.collapsed && lineIndex > r.start && lineIndex <= r.end,
                 );
                 if (isInsideCollapsedRegion) {
                     lineAst.properties["data-folded"] = "";
@@ -165,10 +160,10 @@ export function pluginIndentFold(): ExpressiveCodePlugin {
 
                     const gutterDiv = lineAst.children.find(
                         (child): child is Element =>
-                            child.type === "element" &&
-                            child.tagName === "div" &&
-                            Array.isArray(child.properties?.className) &&
-                            child.properties.className.includes("gutter")
+                            child.type === "element"
+                            && child.tagName === "div"
+                            && Array.isArray(child.properties?.className)
+                            && child.properties.className.includes("gutter"),
                     );
                     if (gutterDiv) {
                         gutterDiv.children.push(chevron);
@@ -176,10 +171,10 @@ export function pluginIndentFold(): ExpressiveCodePlugin {
 
                     const codeDiv = lineAst.children.find(
                         (child): child is Element =>
-                            child.type === "element" &&
-                            child.tagName === "div" &&
-                            Array.isArray(child.properties?.className) &&
-                            child.properties.className.includes("code")
+                            child.type === "element"
+                            && child.tagName === "div"
+                            && Array.isArray(child.properties?.className)
+                            && child.properties.className.includes("code"),
                     );
                     if (codeDiv) {
                         codeDiv.children.push(ellipsis);

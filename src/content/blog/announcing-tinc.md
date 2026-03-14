@@ -56,6 +56,12 @@ body consisting of the single field `message`, which must start with the prefix
 `hello:`.
 
 ```json
+::: logs
+ok@2: Valid - has `message` field starting with `hello:`
+error@5: Missing required field `message`
+error@6: Message doesn't start with `hello:`
+error@7: Empty object - missing `message` field
+:::
 // A valid message
 { "message": "hello:troy" }
 
@@ -68,7 +74,13 @@ body consisting of the single field `message`, which must start with the prefix
 The following would be the corresponding OpenAPI spec
 for the given endpoint.
 
-```json /"paths"/ /"components"/ /"pattern"/ collapse={11,21,41,53}
+```json /"paths"/ /"components"/ /"pattern"/
+::: collapse
+11
+21
+41
+53
+:::
 {
     "openapi": "3.0.3",
     "info": {

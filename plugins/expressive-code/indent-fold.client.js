@@ -3,18 +3,18 @@ function toggleFold(line) {
     const end = parseInt(line.dataset.foldEnd, 10);
     if (isNaN(start) || isNaN(end)) return;
 
-    const codeBlock = line.closest('.expressive-code');
+    const codeBlock = line.closest(".expressive-code");
     if (!codeBlock) return;
 
-    const isCollapsed = line.hasAttribute('data-collapsed');
+    const isCollapsed = line.hasAttribute("data-collapsed");
 
     if (isCollapsed) {
-        line.removeAttribute('data-collapsed');
-        
+        line.removeAttribute("data-collapsed");
+
         const collapsedRegions = [];
         for (let i = start + 1; i <= end; i++) {
             const foldedLine = codeBlock.querySelector(`.ec-line[data-line-num="${i}"]`);
-            if (foldedLine?.hasAttribute('data-collapsed')) {
+            if (foldedLine?.hasAttribute("data-collapsed")) {
                 const innerStart = parseInt(foldedLine.dataset.foldStart, 10);
                 const innerEnd = parseInt(foldedLine.dataset.foldEnd, 10);
                 if (!isNaN(innerStart) && !isNaN(innerEnd)) {
@@ -22,24 +22,24 @@ function toggleFold(line) {
                 }
             }
         }
-        
+
         for (let i = start + 1; i <= end; i++) {
             const isInsideCollapsed = collapsedRegions.some(
-                r => i > r.start && i <= r.end
+                r => i > r.start && i <= r.end,
             );
             if (isInsideCollapsed) continue;
-            
+
             const foldedLine = codeBlock.querySelector(`.ec-line[data-line-num="${i}"]`);
             if (foldedLine) {
-                foldedLine.removeAttribute('data-folded');
+                foldedLine.removeAttribute("data-folded");
             }
         }
     } else {
-        line.setAttribute('data-collapsed', '');
+        line.setAttribute("data-collapsed", "");
         for (let i = start + 1; i <= end; i++) {
             const foldedLine = codeBlock.querySelector(`.ec-line[data-line-num="${i}"]`);
             if (foldedLine) {
-                foldedLine.setAttribute('data-folded', '');
+                foldedLine.setAttribute("data-folded", "");
             }
         }
     }
@@ -49,20 +49,20 @@ function handleFoldClick(e) {
     const target = e.target;
     if (!(target instanceof HTMLElement)) return;
 
-    const chevron = target.closest('.fold-chevron');
-    const ellipsis = target.closest('.fold-ellipsis');
+    const chevron = target.closest(".fold-chevron");
+    const ellipsis = target.closest(".fold-ellipsis");
 
     if (chevron) {
-        const line = chevron.closest('.ec-line');
+        const line = chevron.closest(".ec-line");
         if (line) toggleFold(line);
     } else if (ellipsis) {
-        const line = ellipsis.closest('.ec-line');
+        const line = ellipsis.closest(".ec-line");
         if (line) toggleFold(line);
     }
 }
 
-document.addEventListener('click', handleFoldClick);
-document.addEventListener('astro:page-load', () => {
-    document.removeEventListener('click', handleFoldClick);
-    document.addEventListener('click', handleFoldClick);
+document.addEventListener("click", handleFoldClick);
+document.addEventListener("astro:page-load", () => {
+    document.removeEventListener("click", handleFoldClick);
+    document.addEventListener("click", handleFoldClick);
 });

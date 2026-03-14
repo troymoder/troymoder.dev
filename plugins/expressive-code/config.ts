@@ -1,14 +1,23 @@
-import { defineEcConfig } from "astro-expressive-code";
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
-import { pluginIndentFold } from "./indent-fold.ts";
+import { defineEcConfig } from "astro-expressive-code";
+import { pluginBlockConfig } from "./block-config.ts";
 import { pluginCopyWithoutDeleted } from "./copy-without-deleted.ts";
 import { pluginHoverAnnotations } from "./hover-annotations.ts";
+import { pluginIndentFold } from "./indent-fold.ts";
+import { pluginLineCallouts } from "./line-callouts.ts";
 import { troyModerTheme } from "./theme.ts";
 
 export default defineEcConfig({
     themes: [troyModerTheme],
-    plugins: [pluginLineNumbers(), pluginHoverAnnotations(), pluginIndentFold(), pluginCopyWithoutDeleted()],
-    styleOverrides:  {
+    plugins: [
+        pluginLineNumbers(),
+        pluginBlockConfig(),
+        pluginHoverAnnotations(),
+        pluginIndentFold(),
+        pluginLineCallouts(),
+        pluginCopyWithoutDeleted(),
+    ],
+    styleOverrides: {
         borderRadius: "5px",
         borderWidth: "1px",
         codeFontFamily: "'JetBrains Mono', monospace, serif",
