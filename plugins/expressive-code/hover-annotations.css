@@ -1,0 +1,83 @@
+.expressive-code {
+    --ha-underline-color: color-mix(in srgb, currentColor 50%, transparent);
+    --ha-underline-color-hover: currentColor;
+    --ha-tooltip-bg: #27272a;
+    --ha-tooltip-text: #e4e4e7;
+    --ha-tooltip-border: #3f3f46;
+    --ha-tooltip-shadow: rgba(0, 0, 0, 0.3);
+    --ha-tooltip-code-bg: rgba(0, 0, 0, 0.3);
+    --ha-tooltip-radius: 6px;
+    --ha-tooltip-padding: 0.75rem 1rem;
+    --ha-tooltip-font: system-ui, -apple-system, sans-serif;
+    --ha-tooltip-font-size: 0.875rem;
+    --ha-tooltip-max-width: 400px;
+}
+
+.hover-annotation {
+    position: relative;
+    cursor: help;
+    border-bottom: 1px dashed var(--ha-underline-color);
+
+    &:hover {
+        border-bottom-style: solid;
+        border-bottom-color: var(--ha-underline-color-hover);
+    }
+
+    &:hover .hover-tooltip,
+    .hover-tooltip:hover {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.hover-tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 100;
+    max-width: var(--ha-tooltip-max-width);
+    width: max-content;
+    padding: var(--ha-tooltip-padding);
+    font-family: var(--ha-tooltip-font);
+    font-size: var(--ha-tooltip-font-size);
+    line-height: 1.5;
+    white-space: normal;
+    color: var(--ha-tooltip-text);
+    background: var(--ha-tooltip-bg);
+    border: 1px solid var(--ha-tooltip-border);
+    border-radius: var(--ha-tooltip-radius);
+    box-shadow: 0 4px 12px var(--ha-tooltip-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        left: 12px;
+        width: 10px;
+        height: 10px;
+        background: var(--ha-tooltip-bg);
+        border-left: 1px solid var(--ha-tooltip-border);
+        border-top: 1px solid var(--ha-tooltip-border);
+        transform: rotate(45deg);
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 0;
+        right: 0;
+        height: 8px;
+    }
+
+    code {
+        padding: 0.125rem 0.375rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8125rem;
+        background: var(--ha-tooltip-code-bg);
+        border-radius: 3px;
+    }
+}

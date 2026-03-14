@@ -1,5 +1,4 @@
 <script lang="ts">
-    import CodeBlock from "@components/CodeBlock.svelte";
     import Heading from "@components/Heading.svelte";
     import TableOfContents from "@components/TableOfContents.svelte";
     import type { MarkdownHeading } from "astro";
@@ -64,29 +63,7 @@
         });
     }
 
-    function hydrateCodeBlocks() {
-        document.querySelectorAll("pre[data-code-block]").forEach((block) => {
-            const outerHTML = block.outerHTML;
-            const children = createRawSnippet(() => ({
-                render: () => outerHTML,
-            }));
-
-            const wrapper = document.createElement("div");
-
-            const showLines = !block.hasAttribute("data-no-lines");
-            const showFold = !block.hasAttribute("data-no-fold");
-
-            mount(CodeBlock, {
-                target: wrapper,
-                props: { children, showLines, showFold },
-            });
-
-            block.replaceWith(...wrapper.childNodes);
-        });
-    }
-
     onMount(() => {
-        hydrateCodeBlocks();
         hydrateHeadingAnchors();
     });
 </script>

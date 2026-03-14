@@ -9,7 +9,7 @@ Writing high quality documentation is hard, yet its often a deciding
 factor when choosing one library or service over another.
 
 When it comes to writing REST APIs the type of documentation people
-care about are: "what endpoints are avaliable and how to use them"
+care about are: "what endpoints are available and how to use them"
 
 ## OpenAPI
 
@@ -21,6 +21,12 @@ and how they behave.
 Here is a simple service in rust using the [`axum`](https://docs.rs/axum) crate.
 
 ```rs
+::: hover
+Deserialize: From `serde` - automatically implements JSON deserialization
+Serialize: From `serde` - automatically implements JSON serialization
+Json@12: Axum extractor that parses the request body as JSON
+StatusCode: HTTP status code from `axum::http`
+:::
 #[derive(Deserialize)]
 struct PingRequest {
     message: String,
@@ -51,18 +57,18 @@ body consisting of the single field `message`, which must start with the prefix
 
 ```json
 // A valid message
-{ "message": "hello:troy" } // [!code ++]
+{ "message": "hello:troy" }
 
 // Invalid messages
-{ "not-message": 123 }  // missing fields [!code --]
-{ "message": "troy" }   // incorrect prefix [!code --]
-{ }                     // empty [!code --]
+{ "not-message": 123 }
+{ "message": "troy" }
+{ }
 ```
 
 The following would be the corresponding OpenAPI spec
 for the given endpoint.
 
-```json /"paths"/ /"components"/ /"pattern"/
+```json /"paths"/ /"components"/ /"pattern"/ collapse={11,21,41,53}
 {
     "openapi": "3.0.3",
     "info": {
@@ -249,7 +255,7 @@ Another way to go about having an API is first declaring it using a schema and t
 generating the a mock for you to implement.
 
 The most popular schema is [Protobuf](https://protobuf.dev/) which is a language
-agnositc schema for defining structures and [gRPC](https://grpc.io/) which adds
+agnostic schema for defining structures and [gRPC](https://grpc.io/) which adds
 to that allowing you to define services and methods aswell.
 
 Here is an example of our simple ping-pong service using Protobuf & gRPC.
@@ -311,63 +317,63 @@ This is where [tinc](https://docs.rs/tinc) comes in. The above example is not RE
 its a gRPC API. To get a REST API and also an OpenAPI schema we need to "tinc-ify"
 our example.
 
-```protobuf
-syntax = "proto3";
+```diff lang="protobuf"
+  syntax = "proto3";
 
-import "tinc/annotations.proto"; // [!code ++]
++ import "tinc/annotations.proto";
 
-package ping;
+  package ping;
 
-message PingRequest {
-    string message = 1; // [!code --]
-    string message = 1 [(tinc.field).constraint.string = { // [!code ++]
-        match: "^hello:" // [!code ++]
-    }]; // [!code ++]
-}
+  message PingRequest {
+-     string message = 1;
++     string message = 1 [(tinc.field).constraint.string = {
++         match: "^hello:"
++     }];
+  }
 
-message PingResponse {
-    string response = 1;
-}
+  message PingResponse {
+      string response = 1;
+  }
 
-service PingService {
-    rpc Ping(PingRequest) returns PingResponse {}; // [!code --]
-    rpc Ping(PingRequest) returns PingResponse {
-        option (tinc.method).endpoint = {post: "/ping"}; // [!code ++]
-    };
-}
+  service PingService {
+-     rpc Ping(PingRequest) returns PingResponse {};
++     rpc Ping(PingRequest) returns PingResponse {
++         option (tinc.method).endpoint = {post: "/ping"};
++     };
+  }
 ```
 
 The code for the rust side is almost the same, except we just change the include
 macro to be from `tinc` instead of `tonic`.
 
-```rs
-pub mod pb {
-    // definitions are automatically generated at
-    // compile time
-    tonic::include_proto!("ping"); // [!code --]
-    tinc::include_proto!("ping"); // [!code ++]
-}
+```diff lang="rs"
+  pub mod pb {
+      // definitions are automatically generated at
+      // compile time
+-     tonic::include_proto!("ping");
++     tinc::include_proto!("ping");
+  }
 
-#[derive(Debug, Default)]
-pub struct MyPingService {}
+  #[derive(Debug, Default)]
+  pub struct MyPingService {}
 
-#[tonic::async_trait]
-impl PingService for MyPingService {
-    async fn ping(
-        &self,
-        request: Request<PingRequest>,
-    ) -> Result<Response<PingResponse>, Status> {
-        let req = request.into_inner();
- 
-        if !req.message.starts_with("hello:") {
-            return Err(Status::invalid_argument(
-                "message must start with 'hello:'",
-            ));
-        }
-        
-        Ok(Response::new(PingResponse {
-            response: format!("Pong: {}", req.message),
-        }))
-    }
-}
+  #[tonic::async_trait]
+  impl PingService for MyPingService {
+      async fn ping(
+          &self,
+          request: Request<PingRequest>,
+      ) -> Result<Response<PingResponse>, Status> {
+          let req = request.into_inner();
+   
+          if !req.message.starts_with("hello:") {
+              return Err(Status::invalid_argument(
+                  "message must start with 'hello:'",
+              ));
+          }
+          
+          Ok(Response::new(PingResponse {
+              response: format!("Pong: {}", req.message),
+          }))
+      }
+  }
 ```
