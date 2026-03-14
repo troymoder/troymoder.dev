@@ -3,13 +3,13 @@
   cursor: help;
   border-bottom: 1px dashed var(--ec-hoverAnnotations-underlineCol);
 
-  &:hover {
+  &:hover,
+  &.pinned {
     border-bottom-style: solid;
     border-bottom-color: var(--ec-hoverAnnotations-underlineColHov);
   }
 
-  &:hover .hover-tooltip,
-  .hover-tooltip:hover {
+  &:hover .hover-tooltip {
     opacity: 1;
     visibility: visible;
   }

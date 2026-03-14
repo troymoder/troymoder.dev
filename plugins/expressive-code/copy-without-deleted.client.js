@@ -6,7 +6,7 @@ function getCodeWithoutDeleted(figure) {
             const codeEl = line.querySelector(".code");
             if (codeEl) {
                 const clone = codeEl.cloneNode(true);
-                clone.querySelectorAll(".fold-ellipsis").forEach((el) => el.remove());
+                clone.querySelectorAll("[data-no-copy]").forEach((el) => el.remove());
                 let text = clone.textContent || "";
                 text = text.replace(/\n$/, "");
                 lines.push(text);

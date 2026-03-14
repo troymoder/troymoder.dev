@@ -21,11 +21,16 @@ and how they behave.
 Here is a simple service in rust using the [`axum`](https://docs.rs/axum) crate.
 
 ```rs
-::: hover
-Deserialize: From `serde` - automatically implements JSON deserialization
-Serialize: From `serde` - automatically implements JSON serialization
-Json@12: Axum extractor that parses the request body as JSON
-StatusCode: HTTP status code from `axum::http`
+::: anchor
+rust-first-example
+::: links
+PingRequest@12: #rust-first-example:2/PingRequest/
+PingResponse@13: #rust-first-example:7/PingResponse/
+PingResponse@19: #rust-first-example:7/PingResponse/
+message@14: #rust-first-example:3/message/
+message@20: #rust-first-example:3/message/
+req@14: #rust-first-example:12/req/
+req@20: #rust-first-example:12/req/
 :::
 #[derive(Deserialize)]
 struct PingRequest {
@@ -57,15 +62,12 @@ body consisting of the single field `message`, which must start with the prefix
 
 ```json
 ::: logs
-ok@2: Valid - has `message` field starting with `hello:`
-error@5: Missing required field `message`
-error@6: Message doesn't start with `hello:`
-error@7: Empty object - missing `message` field
+ok@1: Valid - has `message` field starting with `hello:`
+error@2[3:15]: Missing required field `message`
+error@3[14:19]: Message doesn't start with `hello:`
+error@4[1:3]: Empty object - missing `message` field
 :::
-// A valid message
 { "message": "hello:troy" }
-
-// Invalid messages
 { "not-message": 123 }
 { "message": "troy" }
 { }
@@ -74,12 +76,27 @@ error@7: Empty object - missing `message` field
 The following would be the corresponding OpenAPI spec
 for the given endpoint.
 
-```json /"paths"/ /"components"/ /"pattern"/
+```json
+::: anchor
+openapi-code-example
 ::: collapse
 11
 21
 41
 53
+::: hover
+info@3: Metadata about the API - title, version, description, contact info
+paths@7: Defines all API endpoints - maps URL paths to their operations
+post@9: HTTP method for this endpoint - POST, GET, PUT, DELETE, etc.
+requestBody@11: Describes the expected request payload
+$ref@16: JSON Reference - points to a reusable schema definition
+responses@21: Maps HTTP status codes to their response descriptions
+components@39: Reusable definitions for schemas, parameters, and responses
+schemas@40: Object type definitions that can be referenced via `$ref`
+pattern@49: Regex pattern the string value must match
+::: links
+#/components/schemas/PingRequest: #openapi-code-example:41/"PingRequest"/
+#/components/schemas/PingResponse: #openapi-code-example:53/"PingResponse"/
 :::
 {
     "openapi": "3.0.3",
@@ -135,7 +152,7 @@ for the given endpoint.
             },
             "PingResponse": {
                 "type": "object",
-                "required": [
+                "res alsquired": [
                     "response"
                 ],
                 "properties": {
@@ -149,10 +166,11 @@ for the given endpoint.
 }
 ```
 
-It may seem a bit overwhelming at first but basically there are 2 main sections.
+It may seem a bit overwhelming at first, but there are only a few things that are important.
 
-1. paths section where you define all the endpoints you have.
-2. the components section where you define all the payload structures.
+1. [`paths`](#openapi-code-example:7/"paths"/) where you define all the endpoints you have.
+2. [`components`](#openapi-code-example:39/"components"/) where you define all the payload structures.
+3. [`pattern`](#openapi-code-example:49/"pattern"/) we add a requirement to the [`message`](#openapi-code-example:47-50) property
 
 ## Code-first approach
 
@@ -165,6 +183,22 @@ you. In rust a popular library for this is [`utoipa`](https://docs.rs/utoipa/lat
 With `utoipa` you can write something like the following:
 
 ```rs
+::: anchor
+rust-example-utoipa
+::: links
+ping@3: #rust-example-utoipa:30/fn ping/
+PingRequest@4: #rust-example-utoipa:10/PingRequest/
+PingResponse@4: #rust-example-utoipa:16/PingResponse/
+PingRequest@24: #rust-example-utoipa:10/PingRequest/
+PingResponse@26: #rust-example-utoipa:16/PingResponse/
+PingRequest@31: #rust-example-utoipa:10/PingRequest/
+PingResponse@32: #rust-example-utoipa:16/PingResponse/
+message@33: #rust-example-utoipa:12/message/
+req@33: #rust-example-utoipa:31/req/
+PingResponse@37: #rust-example-utoipa:16/PingResponse/
+message@38: #rust-example-utoipa:12/message/
+req@38: #rust-example-utoipa:31/req/
+:::
 #[derive(OpenApi)]
 #[openapi(
     paths(ping),
@@ -213,6 +247,9 @@ the API documentation.
 You can access the generated spec using the following code.
 
 ```rs
+::: links
+ApiDoc: #rust-example-utoipa:7/ApiDoc/
+:::
 let spec = ApiDoc::openapi();
 let spec_json = serde_json::to_string(&spec).unwrap();
 ```
@@ -222,7 +259,22 @@ declare that `#[schema(pattern = r"^hello:")]` we never actually enforce this
 in our implementation. [`validator`](https://docs.rs/validator)
 allows you to annotate the structs to enforce the checks.
 
-```rs {13,31}
+```rs
+::: anchor
+rust-validator-example
+::: links
+starts_with_hello@13: #rust-validator-example:1/starts_with_hello/
+PingRequest@22: #rust-validator-example:12/PingRequest/
+PingResponse@24: #rust-validator-example:19/PingResponse/
+PingRequest@27: #rust-validator-example:12/PingRequest/
+PingResponse@28: #rust-validator-example:19/PingResponse/
+PingRequest@34: #rust-validator-example:12/PingRequest/
+PingResponse@35: #rust-validator-example:19/PingResponse/
+message@39: #rust-validator-example:15/message/
+req@36: #rust-validator-example:34/req/
+req@39: #rust-validator-example:34/req/
+PingResponse@38: #rust-validator-example:19/PingResponse/
+:::
 fn starts_with_hello(
     message: &str,
 ) -> Result<(), validator::ValidationError> {
@@ -238,6 +290,11 @@ struct PingRequest {
     #[validate(custom(function = "starts_with_hello"))]
     #[schema(pattern = r"^hello:")]
     message: String,
+}
+
+#[derive(Serialize, ToSchema)]
+struct PingResponse {
+    response: String,
 }
 
 #[utoipa::path(
@@ -273,6 +330,12 @@ to that allowing you to define services and methods aswell.
 Here is an example of our simple ping-pong service using Protobuf & gRPC.
 
 ```protobuf
+::: anchor
+proto-example
+::: links
+PingRequest@14: #proto-example:5/PingRequest/
+PingResponse@14: #proto-example:9/PingResponse/
+:::
 syntax = "proto3";
 
 package ping;
@@ -293,6 +356,20 @@ service PingService {
 Then in rust using [`tonic`](https://docs.rs/tonic) you can implement it like so
 
 ```rs
+::: anchor
+rust-tonic-example
+::: links
+ping@4: #proto-example:3/ping/
+PingService@11: #proto-example:13/PingService/
+MyPingService@11: #rust-tonic-example:8/MyPingService/
+PingRequest@14: #proto-example:5/PingRequest/
+PingResponse@15: #proto-example:9/PingResponse/
+message@18: #proto-example:6/message/
+req@18: #rust-tonic-example:16/req/
+PingResponse@24: #proto-example:9/PingResponse/
+message@25: #proto-example:6/message/
+req@25: #rust-tonic-example:16/req/
+:::
 pub mod pb {
     // definitions are automatically generated at
     // compile time

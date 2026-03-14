@@ -154,7 +154,7 @@ export function pluginIndentFold(): ExpressiveCodePlugin {
                     const ellipsis: Element = {
                         type: "element",
                         tagName: "button",
-                        properties: { className: ["fold-ellipsis"] },
+                        properties: { className: ["fold-ellipsis"], dataNoCopy: true },
                         children: [{ type: "text", value: "..." }],
                     };
 

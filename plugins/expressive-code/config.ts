@@ -1,6 +1,8 @@
 import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { defineEcConfig } from "astro-expressive-code";
 import { pluginBlockConfig } from "./block-config.ts";
+import { pluginClickLinks } from "./click-links.ts";
+import { pluginCodeAnchors } from "./code-anchors.ts";
 import { pluginCopyWithoutDeleted } from "./copy-without-deleted.ts";
 import { pluginHoverAnnotations } from "./hover-annotations.ts";
 import { pluginIndentFold } from "./indent-fold.ts";
@@ -12,6 +14,8 @@ export default defineEcConfig({
     plugins: [
         pluginLineNumbers(),
         pluginBlockConfig(),
+        pluginClickLinks(),
+        pluginCodeAnchors(),
         pluginHoverAnnotations(),
         pluginIndentFold(),
         pluginLineCallouts(),

@@ -120,13 +120,13 @@ function wrapTextWithAnnotation(
                     const tooltip: Element = {
                         type: "element",
                         tagName: "span",
-                        properties: { className: ["hover-tooltip"] },
+                        properties: { className: ["hover-tooltip"], dataNoCopy: true },
                         children: htmlTree.children as (Element | Text)[],
                     };
                     const wrapper: Element = {
                         type: "element",
                         tagName: "span",
-                        properties: { className: ["hover-annotation"] },
+                        properties: { className: ["hover-annotation"], tabIndex: -1 },
                         children: [
                             { type: "text", value: annotation.target },
                             tooltip,
