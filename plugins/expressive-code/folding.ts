@@ -144,7 +144,7 @@ export function pluginFolding(): ExpressiveCodePlugin {
                 user-select: none;
                 position: absolute;
                 transform: translateX(-1px);
-                right: 0;
+                right: 0.25em;
                 top: 0;
 
                 &::before {

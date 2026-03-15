@@ -11,6 +11,12 @@ const colors = {
 export const troyModerTheme = new ExpressiveCodeTheme({
     name: "troy-moder",
     type: "light",
+    styleOverrides: {
+        diff: {
+            // lineInsertedIcon: "",
+            // lineDeletedIcon: "",
+        },
+    },
     colors: {
         "editor.background": colors.bg,
         "editor.foreground": colors.fg,

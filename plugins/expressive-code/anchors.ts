@@ -9,7 +9,6 @@ declare module "astro-expressive-code" {
 }
 
 interface AnchorsStyleSettings {
-    highlightBackground: string;
     highlightBackgroundStart: string;
     highlightBackgroundMid: string;
 }
@@ -17,7 +16,6 @@ interface AnchorsStyleSettings {
 export const anchorsStyleSettings = new PluginStyleSettings({
     defaultValues: {
         anchors: {
-            highlightBackground: "rgba(255, 213, 0, 0.25)",
             highlightBackgroundStart: "rgba(255, 213, 0, 0.3)",
             highlightBackgroundMid: "rgba(255, 213, 0, 0.15)",
         },
@@ -56,26 +54,27 @@ export function pluginAnchors(): ExpressiveCodePlugin {
         name: "anchors",
         styleSettings: anchorsStyleSettings,
         baseStyles: ({ cssVar }) => `
-            .ec-line[data-anchor-highlight="full"] {
-                background: ${cssVar("anchors.highlightBackground")};
-                animation: anchor-highlight-fade 3s ease-out forwards;
-            }
-
-            .ec-line[data-anchor-highlight="partial"] .code {
+            .ec-line[data-anchor-highlight] {
                 position: relative;
             }
 
+            .ec-line[data-anchor-highlight="full"]::after {
+                content: "";
+                inset: 0;
+            }
+
+            .ec-line[data-anchor-highlight="full"]::after,
             .anchor-highlight-overlay {
                 position: absolute;
                 top: 0;
                 bottom: 0;
-                background: ${cssVar("anchors.highlightBackground")};
                 animation: anchor-highlight-fade 3s ease-out forwards;
                 pointer-events: none;
             }
 
             @keyframes anchor-highlight-fade {
-                0% { background: ${cssVar("anchors.highlightBackgroundStart")}; }
+                0% { background: transparent; }
+                5% { background: ${cssVar("anchors.highlightBackgroundStart")}; }
                 70% { background: ${cssVar("anchors.highlightBackgroundMid")}; }
                 100% { background: transparent; }
             }

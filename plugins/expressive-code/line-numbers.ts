@@ -22,7 +22,7 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
                 align-items: flex-start;
                 box-sizing: content-box;
                 min-width: var(--lnWidth, 2ch);
-                padding-inline: 2ch;
+                padding-inline: 1.5ch 2.5ch;
                 color: ${cssVar("gutterForeground")};
 
                 .highlight & { color: ${cssVar("gutterHighlightForeground")}; }

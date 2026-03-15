@@ -171,15 +171,9 @@
                 const match = findTextMatch(codeDiv, pattern);
                 if (match) {
                     line.setAttribute("data-anchor-highlight", "partial");
-                    const overlay = createOverlay(codeDiv, match.startIdx, match.endIdx);
-                    if (overlay) {
-                        overlay.style.animation = "none";
-                        overlay.style.animation = "";
-                    }
+                    createOverlay(codeDiv, match.startIdx, match.endIdx);
                 }
             } else {
-                line.style.animation = "none";
-                line.style.animation = "";
                 line.setAttribute("data-anchor-highlight", "full");
             }
         }
@@ -202,8 +196,11 @@
 
         e.preventDefault();
 
+        const block = document.getElementById(parsed.blockId);
+        if (!block) return;
+
         clearHighlights();
-        highlightRange(parsed);
+        window.requestAnimationFrame(() => highlightRange(parsed));
     }
 
     document.addEventListener("click", handleLinkClick);

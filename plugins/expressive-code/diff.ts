@@ -1,5 +1,7 @@
 import { type ExpressiveCodePlugin, PluginStyleSettings } from "astro-expressive-code";
+import type { Element } from "hast";
 import { getSection, pluginBlockConfigData } from "./block-config.ts";
+import diffClient from "./diff.client.js?raw";
 
 declare module "astro-expressive-code" {
     export interface StyleSettings {
@@ -16,6 +18,8 @@ interface DiffStyleSettings {
     lineDeletedBorder: string;
     lineDeletedIcon: string;
     lineDeletedIconColor: string;
+    toggleColor: string;
+    toggleActiveColor: string;
 }
 
 export const diffStyleSettings = new PluginStyleSettings({
@@ -29,6 +33,8 @@ export const diffStyleSettings = new PluginStyleSettings({
             lineDeletedBorder: "#d73a49",
             lineDeletedIcon: `"-"`,
             lineDeletedIconColor: "#d73a49",
+            toggleColor: "#737373",
+            toggleActiveColor: "#171717",
         },
     },
 });
@@ -80,37 +86,77 @@ export function pluginDiff(): ExpressiveCodePlugin {
     return {
         name: "diff",
         styleSettings: diffStyleSettings,
+        jsModules: [diffClient],
         baseStyles: ({ cssVar, cssVarName }) => `
-            .ec-line.ins {
-                background: ${cssVar("diff.lineInsertedBackground")};
-                border-left: 3px solid ${cssVar("diff.lineInsertedBorder")};
-                .gutter::after {
-                    content: ${cssVar("diff.lineInsertedIcon")};
-                    color: ${cssVar("diff.lineInsertedIconColor")};
-                }
-            }
-
-            .ec-line.del {
-                background: ${cssVar("diff.lineDeletedBackground")};
-                border-left: 3px solid ${cssVar("diff.lineDeletedBorder")};
-                .gutter::after {
-                    content: ${cssVar("diff.lineDeletedIcon")};
-                    color: ${cssVar("diff.lineDeletedIconColor")};
-                }
-            }
-
-            .ec-line.ins, .ec-line.del {
-                .gutter {
-                    margin-inline-start: -3px;
-                    &::after {
-                        position: absolute;
-                        font-family: monospace;
-                        text-align: center;
-                        transform: translateX(-3px);
+            .diff-block[data-diff-mode="diff"] {
+                .ec-line.ins {
+                    background: ${cssVar("diff.lineInsertedBackground")};
+                    border-left: 3px solid ${cssVar("diff.lineInsertedBorder")};
+                    .gutter::after {
+                        content: ${cssVar("diff.lineInsertedIcon")};
+                        color: ${cssVar("diff.lineInsertedIconColor")};
                     }
                 }
-                .code {
-                    ${cssVarName("gutterBorderColor")}: transparent;
+
+                .ec-line.del {
+                    background: ${cssVar("diff.lineDeletedBackground")};
+                    border-left: 3px solid ${cssVar("diff.lineDeletedBorder")};
+                    .gutter::after {
+                        content: ${cssVar("diff.lineDeletedIcon")};
+                        color: ${cssVar("diff.lineDeletedIconColor")};
+                    }
+                }
+
+                .ec-line.ins, .ec-line.del {
+                    .gutter {
+                        margin-inline-start: -3px;
+                        &::after {
+                            position: absolute;
+                            font-family: monospace;
+                            text-align: center;
+                            transform: translateX(-3px);
+                        }
+                    }
+                    .code {
+                        ${cssVarName("gutterBorderColor")}: transparent;
+                    }
+                }
+            }
+
+            .diff-block[data-diff-mode="plain"] .ec-line.del {
+                display: none;
+            }
+
+            .diff-block {
+                flex-grow: 1;
+            }
+
+            .diff-toggle-wrapper {
+                display: inline-flex;
+                padding: 1em;
+                gap: 0.75rem;
+                font-size: 0.7rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .diff-toggle-btn {
+                font-size: inherit;
+                font-family: inherit;
+                border: none;
+                background: none;
+                color: ${cssVar("diff.toggleColor")};
+                cursor: pointer;
+                transition: color 0.15s ease;
+                text-decoration: none;
+                border-bottom: 1px solid transparent;
+                padding-bottom: 1px;
+
+                &:hover {
+                    color: ${cssVar("diff.toggleActiveColor")};
+                }
+                &.active {
+                    color: ${cssVar("diff.toggleActiveColor")};
+                    border-bottom-color: ${cssVar("diff.toggleActiveColor")};
                 }
             }
         `,
@@ -136,6 +182,57 @@ export function pluginDiff(): ExpressiveCodePlugin {
 
                 renderData.lineAst.properties.className = classes;
                 renderData.lineAst.properties.dataNoCopy = noCopy;
+            },
+            postprocessRenderedBlock: ({ codeBlock, renderData }) => {
+                const data = pluginBlockConfigData.getOrCreateFor(codeBlock);
+                const diffLines = getSection(data.sections, "diff");
+                if (!diffLines) return;
+
+                const config = parseDiffSection(diffLines);
+                if (config.del.size === 0) return;
+
+                const diffBtn: Element = {
+                    type: "element",
+                    tagName: "button",
+                    properties: {
+                        className: ["diff-toggle-btn", "active"],
+                        type: "button",
+                        "data-mode": "diff",
+                    },
+                    children: [{ type: "text", value: "Diff" }],
+                };
+
+                const outputBtn: Element = {
+                    type: "element",
+                    tagName: "button",
+                    properties: {
+                        className: ["diff-toggle-btn"],
+                        type: "button",
+                        "data-mode": "plain",
+                    },
+                    children: [{ type: "text", value: "Plain" }],
+                };
+
+                const toggleWrapper: Element = {
+                    type: "element",
+                    tagName: "div",
+                    properties: { className: ["diff-toggle-wrapper"] },
+                    children: [diffBtn, outputBtn],
+                };
+
+                const figureAst = renderData.blockAst;
+
+                const wrapper: Element = {
+                    type: "element",
+                    tagName: "div",
+                    properties: {
+                        className: ["diff-block"],
+                        "data-diff-mode": "diff",
+                    },
+                    children: [toggleWrapper, ...figureAst.children],
+                };
+
+                figureAst.children = [wrapper];
             },
         },
     };
