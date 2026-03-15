@@ -58,6 +58,7 @@ body consisting of the single field `message`, which must start with the prefix
 `hello:`.
 
 ```json
+::: no-copy
 ::: logs
 ok@1: Valid - has `message` field starting with `hello:`
 error@2[3:15]: Missing required field `message`
@@ -245,62 +246,8 @@ let spec_json = serde_json::to_string(&spec).unwrap();
 ```
 
 Validation here is disconnected from the schema. Even though we
-declare that `#[schema(pattern = r"^hello:")]` we never actually enforce this
-in our implementation. [`validator`](https://docs.rs/validator)
-allows you to annotate the structs to enforce the checks.
-
-```rs
-::: anchor
-rust-validator-example
-::: links
-starts_with_hello@13 -> :1/starts_with_hello/
-PingRequest@27,34 -> :12/PingRequest/
-PingResponse@29,35,38 -> :19/PingResponse/
-message@39 -> :15/message/
-response@39 -> :20/response/
-:::
-fn starts_with_hello(
-    message: &str,
-) -> Result<(), validator::ValidationError> {
-    if message.starts_with("hello:") {
-        Ok(())
-    } else {
-        Err(validator::ValidationError::new("must start with hello:"))
-    }
-}
-
-#[derive(Deserialize, Validate, ToSchema)]
-struct PingRequest {
-    #[validate(custom(function = "starts_with_hello"))]
-    #[schema(pattern = r"^hello:")]
-    message: String,
-}
-
-#[derive(Serialize, ToSchema)]
-struct PingResponse {
-    response: String,
-}
-
-#[utoipa::path(
-    post,
-    path = "/ping",
-    summary = "Post a ping message",
-    request_body = PingRequest,
-    responses(
-        (status = 200, description = "Successful response", body = PingResponse),
-        (status = 400, description = "Message must start with `hello:`")
-    )
-)]
-async fn ping(
-  Json(req): Json<PingRequest>,
-) -> Result<Json<PingResponse>, StatusCode> {
-    req.validate().map(|_| StatusCode::BAD_REQUEST)?;
-
-    Ok(Json(PingResponse {
-        response: format!("Pong: {}", req.message),
-    }))
-}
-```
+declare that [`#[schema(pattern = r"^hello:")]`](#rust-example-utoipa:11/#.*/)
+we still need to add a [check](#rust-example-utoipa:33-35) this inside our implementation method.
 
 ## Schema-first approach
 
@@ -346,6 +293,7 @@ rust-tonic-example
 ping@3 -> #proto-example:3/ping/
 MyPingService@10 -> :7/MyPingService/
 PingService@10 -> #proto-example:13/PingService/
+ping@11 -> #proto-example:14/\bPing\b/
 PingRequest@13 -> #proto-example:5/PingRequest/
 PingResponse@14,23 -> #proto-example:9/PingResponse/
 message@17,24 -> #proto-example:6/message/
@@ -436,6 +384,7 @@ del: 3,18-23
 ping@4 -> #tinc-proto-diff:5/ping/
 MyPingService@11 -> :8/MyPingService/
 PingService@11 -> #tinc-proto-diff:18/PingService/
+ping@12 -> #tinc-proto-diff:20/\bPing\b/
 PingRequest@14 -> #tinc-proto-diff:7/PingRequest/
 PingResponse@15,24 -> #tinc-proto-diff:14/PingResponse/
 message@18,25 -> #tinc-proto-diff:9/message/

@@ -15,7 +15,7 @@ audit:
     pnpm audit
 
 dev:
-    pnpm dev
+    pnpm dev --force
 
 build:
     pnpm build
