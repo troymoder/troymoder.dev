@@ -163,12 +163,13 @@
         console.log(fileTabs);
 
         const codeBlocks = tabsContent.querySelectorAll(".expressive-code");
-        console.log(codeBlocks);
         const index = Array.from(codeBlocks).indexOf(block.closest(".expressive-code"));
-        console.log(index);
-        if (index !== -1) {
-            fileTabs.dataset.activeTab = String(index);
-        }
+        if (index === -1) return;
+
+        const button = fileTabs.querySelector(`button[data-tab-index="${index}"]`);
+        if (!button) return;
+
+        button.click();
     }
 
     function highlightRange(parsed) {

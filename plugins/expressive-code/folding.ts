@@ -128,8 +128,6 @@ export function pluginFolding(): ExpressiveCodePlugin {
         name: "folding",
         styleSettings: foldingStyleSettings,
         baseStyles: ({ cssVar }) => `
-            .ec-line[data-foldable] .gutter { position: relative; }
-
             .ec-line[data-foldable] .fold-chevron {
                 display: inline-flex;
                 width: 1.2em;

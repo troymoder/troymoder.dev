@@ -16,6 +16,10 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
     return {
         name: "line-numbers",
         baseStyles: ({ cssVar }) => `
+            .gutter {
+                position: relative;
+            }
+
             .gutter .ln {
                 display: inline-flex;
                 justify-content: flex-end;

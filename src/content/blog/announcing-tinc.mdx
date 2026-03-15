@@ -268,7 +268,7 @@ to that allowing you to define services and methods aswell.
 
 Here is an example of our simple ping-pong service using Protobuf & gRPC.
 
-<FileTabs client:load files={["pb/ping.proto", "src/main.rs", "build.rs"]}>
+<FileTabs client:load files={["pb/ping.proto", "src/main.rs", "build.rs", "Cargo.toml"]}>
 ```protobuf
 ::: anchor
 proto-example
@@ -342,6 +342,15 @@ fn main() {
         .unwrap();
 }
 ```
+
+```toml
+[dependencies]
+tonic = { version = "0.14", features = ["prost"] }
+prost = "0.14"
+
+[build-dependencies]
+tonic-build = "0.14"
+```
 </FileTabs>
 
 ## Tinc
@@ -350,7 +359,7 @@ This is where [tinc](https://docs.rs/tinc) comes in. The above example is not RE
 its a gRPC API. To get a REST API and also an OpenAPI schema we need to "tinc-ify"
 our example.
 
-<FileTabs client:load files={["pb/ping.proto", "src/main.rs", "build.rs"]}>
+<FileTabs client:load files={["pb/ping.proto", "src/main.rs", "build.rs", "Cargo.toml"]}>
 
 ```protobuf
 ::: anchor
@@ -446,5 +455,21 @@ fn main() {
         .compile_protos(["pb/ping.proto"], &["pb"])?
         .unwrap();
 }
+```
+
+```toml
+::: diff
+ins: 4-5, 9
+del: 8
+:::
+[dependencies]
+tonic = { version = "0.14", features = ["prost"] }
+prost = "0.14"
+tinc = { version = "0.2", features = ["prost"] }
+serde = "1.0"
+
+[build-dependencies]
+tonic-build = "0.14"
+tinc-build = { version = "0.2", features = ["prost"] }
 ```
 </FileTabs>
