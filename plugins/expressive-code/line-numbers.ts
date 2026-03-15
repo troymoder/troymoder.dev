@@ -17,7 +17,31 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
         name: "line-numbers",
         baseStyles: ({ cssVar }) => `
             .gutter {
-                position: relative;
+                position: sticky;
+                left: 0;
+                z-index: 1;
+                background: inherit;
+                border-inline-end: ${cssVar("gutterBorderWidth")} solid ${cssVar("gutterBorderColor")};
+                &::before {
+                    content: "";
+                    position: absolute;
+                    z-index: -1;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: ${cssVar("codeBackground")};
+                }
+                &::after {
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    z-index: -1;
+                    background: inherit; /* semi-transparent row color */
+                }
+                + .code {
+                    border-inline-start: 0;
+                }
             }
 
             .gutter .ln {

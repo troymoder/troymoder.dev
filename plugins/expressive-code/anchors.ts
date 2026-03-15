@@ -70,6 +70,7 @@ export function pluginAnchors(): ExpressiveCodePlugin {
                 bottom: 0;
                 animation: anchor-highlight-fade 3s ease-out forwards;
                 pointer-events: none;
+                z-index: 10;
             }
 
             @keyframes anchor-highlight-fade {

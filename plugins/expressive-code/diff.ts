@@ -92,7 +92,7 @@ export function pluginDiff(): ExpressiveCodePlugin {
                 .ec-line.ins {
                     background: ${cssVar("diff.lineInsertedBackground")};
                     border-left: 3px solid ${cssVar("diff.lineInsertedBorder")};
-                    .gutter::after {
+                    .code::before {
                         content: ${cssVar("diff.lineInsertedIcon")};
                         color: ${cssVar("diff.lineInsertedIconColor")};
                     }
@@ -101,7 +101,7 @@ export function pluginDiff(): ExpressiveCodePlugin {
                 .ec-line.del {
                     background: ${cssVar("diff.lineDeletedBackground")};
                     border-left: 3px solid ${cssVar("diff.lineDeletedBorder")};
-                    .gutter::after {
+                    .code::before {
                         content: ${cssVar("diff.lineDeletedIcon")};
                         color: ${cssVar("diff.lineDeletedIconColor")};
                     }
@@ -110,15 +110,14 @@ export function pluginDiff(): ExpressiveCodePlugin {
                 .ec-line.ins, .ec-line.del {
                     .gutter {
                         margin-inline-start: -3px;
-                        &::after {
-                            position: absolute;
-                            font-family: monospace;
-                            text-align: center;
-                            transform: translateX(-3px);
-                        }
                     }
                     .code {
-                        ${cssVarName("gutterBorderColor")}: transparent;
+                        &::before {
+                            position: absolute;
+                            left: 0.25em;
+                            font-family: monospace;
+                            text-align: center;
+                        }
                     }
                 }
             }
@@ -137,6 +136,9 @@ export function pluginDiff(): ExpressiveCodePlugin {
                 gap: 0.75rem;
                 font-size: 0.7rem;
                 margin-bottom: 0.25rem;
+                position: sticky;
+                left: 0;
+                z-index: 1;
             }
 
             .diff-toggle-btn {
