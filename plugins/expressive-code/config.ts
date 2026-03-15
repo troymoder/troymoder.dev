@@ -1,27 +1,29 @@
 import { defineEcConfig } from "astro-expressive-code";
+import { pluginAnchors } from "./anchors.ts";
 import { pluginBlockConfig } from "./block-config.ts";
-import { pluginClickLinks } from "./click-links.ts";
-import { pluginCodeAnchors } from "./code-anchors.ts";
-import { pluginCopyWithoutDeleted } from "./copy-without-deleted.ts";
-import { pluginDiffStyle } from "./diff-style.ts";
-import { pluginHoverAnnotations } from "./hover-annotations.ts";
-import { pluginIndentFold } from "./indent-fold.ts";
-import { pluginLineCallouts } from "./line-callouts.ts";
+import { pluginCallouts } from "./callouts.ts";
+import { pluginCopy } from "./copy.ts";
+import { pluginDiff } from "./diff.ts";
+import { pluginFolding } from "./folding.ts";
 import { pluginLineNumbers } from "./line-numbers.ts";
+import { pluginLinks } from "./links.ts";
 import { troyModerTheme } from "./theme.ts";
+import { pluginTooltips } from "./tooltips.ts";
 
 export default defineEcConfig({
     themes: [troyModerTheme],
+    frames: false,
+    textMarkers: false,
     plugins: [
         pluginBlockConfig(),
         pluginLineNumbers(),
-        pluginClickLinks(),
-        pluginCodeAnchors(),
-        pluginDiffStyle(),
-        pluginHoverAnnotations(),
-        pluginIndentFold(),
-        pluginLineCallouts(),
-        pluginCopyWithoutDeleted(),
+        pluginLinks(),
+        pluginAnchors(),
+        pluginDiff(),
+        pluginTooltips(),
+        pluginFolding(),
+        pluginCallouts(),
+        pluginCopy(),
     ],
     styleOverrides: {
         borderRadius: "5px",
@@ -31,13 +33,5 @@ export default defineEcConfig({
         codeLineHeight: "1.4",
         codePaddingBlock: "1em",
         codePaddingInline: "1em",
-        frames: {
-            frameBoxShadowCssValue: "none",
-        },
-        textMarkers: {
-            markBorderColor: "transparent",
-            insBorderColor: "transparent",
-            delBorderColor: "transparent",
-        },
     },
 });

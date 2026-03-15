@@ -1,36 +1,35 @@
 import { type ExpressiveCodePlugin, PluginStyleSettings } from "astro-expressive-code";
 import type { Element, Text } from "hast";
-import { getSection, pluginBlockConfigData } from "./block-config";
-import clickLinksCss from "./click-links.css?raw";
+import { getSection, pluginBlockConfigData } from "./block-config.ts";
 
 declare module "astro-expressive-code" {
     export interface StyleSettings {
-        clickLinks: ClickLinksStyleSettings;
+        links: LinksStyleSettings;
     }
 }
 
-interface ClickLinksStyleSettings {
+interface LinksStyleSettings {
     underlineCol: string;
     underlineColHov: string;
 }
 
-export const clickLinksStyleSettings = new PluginStyleSettings({
+export const linksStyleSettings = new PluginStyleSettings({
     defaultValues: {
-        clickLinks: {
+        links: {
             underlineCol: "color-mix(in srgb, currentColor 40%, transparent)",
             underlineColHov: "currentColor",
         },
     },
 });
 
-interface ClickLink {
+interface Link {
     target: string;
     href: string;
     lines?: number[];
 }
 
-function parseLinksSection(lines: string[], anchor?: string): ClickLink[] {
-    const links: ClickLink[] = [];
+function parseLinksSection(lines: string[], anchor?: string): Link[] {
+    const links: Link[] = [];
 
     for (const line of lines) {
         const trimmed = line.trim();
@@ -68,11 +67,7 @@ function parseLinksSection(lines: string[], anchor?: string): ClickLink[] {
     return links;
 }
 
-function wrapTextWithLink(
-    node: Element,
-    lineIndex: number,
-    link: ClickLink,
-): boolean {
+function wrapTextWithLink(node: Element, lineIndex: number, link: Link): boolean {
     if (link.lines !== undefined && !link.lines.includes(lineIndex)) {
         return false;
     }
@@ -101,7 +96,7 @@ function wrapTextWithLink(
                         type: "element",
                         tagName: "a",
                         properties: {
-                            className: ["click-link"],
+                            className: ["code-link"],
                             href: link.href,
                             ...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {}),
                         },
@@ -130,11 +125,24 @@ function wrapTextWithLink(
     return found;
 }
 
-export function pluginClickLinks(): ExpressiveCodePlugin {
+export function pluginLinks(): ExpressiveCodePlugin {
     return {
-        name: "click-links",
-        styleSettings: clickLinksStyleSettings,
-        baseStyles: clickLinksCss,
+        name: "links",
+        styleSettings: linksStyleSettings,
+        baseStyles: ({ cssVar }) => `
+            .code-link {
+                color: inherit;
+                text-decoration: none;
+                border-bottom: 1px dashed ${cssVar("links.underlineCol")};
+                cursor: pointer;
+                transition: border-color 0.15s ease;
+
+                &:hover {
+                    border-bottom-style: solid;
+                    border-bottom-color: ${cssVar("links.underlineColHov")};
+                }
+            }
+        `,
         hooks: {
             postprocessRenderedLine: ({ codeBlock, lineIndex, renderData }) => {
                 const data = pluginBlockConfigData.getOrCreateFor(codeBlock);

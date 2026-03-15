@@ -1,8 +1,7 @@
 import { type ExpressiveCodePlugin } from "astro-expressive-code";
 import { h, setInlineStyle } from "astro-expressive-code/hast";
-import { type BlockConfigSection, getSection, pluginBlockConfigData } from "./block-config";
-import { parseDiffSection } from "./diff-style";
-import lineNumbersCss from "./line-numbers.css?raw";
+import { type BlockConfigSection, getSection, pluginBlockConfigData } from "./block-config.ts";
+import { parseDiffSection } from "./diff.ts";
 
 function getDeletedLines(sections: BlockConfigSection[]): Set<number> {
     const diffLines = getSection(sections, "diff");
@@ -16,7 +15,19 @@ function getDeletedLines(sections: BlockConfigSection[]): Set<number> {
 export function pluginLineNumbers(): ExpressiveCodePlugin {
     return {
         name: "line-numbers",
-        baseStyles: lineNumbersCss,
+        baseStyles: ({ cssVar }) => `
+            .gutter .ln {
+                display: inline-flex;
+                justify-content: flex-end;
+                align-items: flex-start;
+                box-sizing: content-box;
+                min-width: var(--lnWidth, 2ch);
+                padding-inline: 2ch;
+                color: ${cssVar("gutterForeground")};
+
+                .highlight & { color: ${cssVar("gutterHighlightForeground")}; }
+            }
+        `,
         hooks: {
             preprocessCode: ({ codeBlock, addGutterElement }) => {
                 const data = pluginBlockConfigData.getOrCreateFor(codeBlock);

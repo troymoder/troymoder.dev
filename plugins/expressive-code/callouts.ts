@@ -2,16 +2,15 @@ import { type ExpressiveCodePlugin, PluginStyleSettings } from "astro-expressive
 import type { Element, Text } from "hast";
 import { fromHtml } from "hast-util-from-html";
 import MarkdownIt from "markdown-it";
-import { getSection, pluginBlockConfigData } from "./block-config";
-import lineCalloutsCss from "./line-callouts.css?raw";
+import { getSection, pluginBlockConfigData } from "./block-config.ts";
 
 declare module "astro-expressive-code" {
     export interface StyleSettings {
-        lineCallouts: LineCalloutsStyleSettings;
+        callouts: CalloutsStyleSettings;
     }
 }
 
-interface LineCalloutsStyleSettings {
+interface CalloutsStyleSettings {
     errBg: string;
     errBrd: string;
     errIcon: string;
@@ -35,9 +34,9 @@ interface LineCalloutsStyleSettings {
     fontSz: string;
 }
 
-export const lineCalloutsStyleSettings = new PluginStyleSettings({
+export const calloutsStyleSettings = new PluginStyleSettings({
     defaultValues: {
-        lineCallouts: {
+        callouts: {
             errBg: "#fef2f2",
             errBrd: "#fca5a5",
             errIcon: "'🚫'",
@@ -67,30 +66,26 @@ const md = new MarkdownIt({ html: true });
 
 type CalloutType = "error" | "warn" | "info" | "ok" | "note";
 
-interface LineCallout {
+interface Callout {
     line: number;
     type: CalloutType;
     message: string;
     html: string;
-    colStart?: number | undefined;
-    colEnd?: number | undefined;
+    colStart?: number;
+    colEnd?: number;
 }
 
-function parseLogsSection(lines: string[]): LineCallout[] {
-    const callouts: LineCallout[] = [];
-    const validTypes = new Set<CalloutType>(["error", "warn", "info", "ok", "note"]);
+function parseLogsSection(lines: string[]): Callout[] {
+    const callouts: Callout[] = [];
 
     for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed) continue;
 
-        // Match: type@line[colStart:colEnd]: message  OR  type@line: message
         const match = trimmed.match(/^(error|warn|info|ok|note)@(\d+)(?:\[(\d+):(\d+)\])?:\s*(.+)$/);
         if (!match) continue;
 
         const type = match[1] as CalloutType;
-        if (!validTypes.has(type)) continue;
-
         const lineNum = parseInt(match[2]!, 10) - 1;
         const colStart = match[3] ? parseInt(match[3], 10) - 1 : undefined;
         const colEnd = match[4] ? parseInt(match[4], 10) : undefined;
@@ -103,10 +98,7 @@ function parseLogsSection(lines: string[]): LineCallout[] {
     return callouts;
 }
 
-function wrapColumnRange(
-    node: Element,
-    callout: LineCallout,
-): void {
+function wrapColumnRange(node: Element, callout: Callout): void {
     if (callout.colStart === undefined || callout.colEnd === undefined) return;
 
     let currentCol = 0;
@@ -174,11 +166,86 @@ function wrapColumnRange(
     }
 }
 
-export function pluginLineCallouts(): ExpressiveCodePlugin {
+export function pluginCallouts(): ExpressiveCodePlugin {
     return {
-        name: "line-callouts",
-        styleSettings: lineCalloutsStyleSettings,
-        baseStyles: lineCalloutsCss,
+        name: "callouts",
+        styleSettings: calloutsStyleSettings,
+        baseStyles: ({ cssVar }) => `
+            .ec-line {
+                &[data-callout-error],
+                &[data-callout-warn],
+                &[data-callout-info],
+                &[data-callout-ok],
+                &[data-callout-note] {
+                    display: grid;
+                    grid-template-columns: auto 1fr;
+                    grid-template-rows: auto auto;
+
+                    > .gutter { grid-row: 1; grid-column: 1; }
+                    > .code { grid-row: 1; grid-column: 2; }
+                    > .line-callout { grid-row: 2; grid-column: 1 / -1; }
+                }
+            }
+
+            .line-callout {
+                padding: ${cssVar("callouts.pad")};
+                font-family: ${cssVar("callouts.font")};
+                font-size: ${cssVar("callouts.fontSz")};
+                line-height: 1.4;
+                color: ${cssVar("callouts.txt")};
+                border-left-width: 3px;
+                border-left-style: solid;
+
+                &::before { margin-right: 0.5rem; }
+
+                code {
+                    padding: 0.125rem 0.375rem;
+                    font-family: "JetBrains Mono", monospace;
+                    font-size: 0.75rem;
+                    background: rgba(0, 0, 0, 0.08);
+                    border-radius: 3px;
+                }
+            }
+
+            .line-callout-error {
+                background: ${cssVar("callouts.errBg")};
+                border-left-color: ${cssVar("callouts.errBrd")};
+                &::before { content: ${cssVar("callouts.errIcon")}; }
+            }
+
+            .line-callout-warn {
+                background: ${cssVar("callouts.warnBg")};
+                border-left-color: ${cssVar("callouts.warnBrd")};
+                &::before { content: ${cssVar("callouts.warnIcon")}; }
+            }
+
+            .line-callout-info {
+                background: ${cssVar("callouts.infoBg")};
+                border-left-color: ${cssVar("callouts.infoBrd")};
+                &::before { content: ${cssVar("callouts.infoIcon")}; }
+            }
+
+            .line-callout-ok {
+                background: ${cssVar("callouts.okBg")};
+                border-left-color: ${cssVar("callouts.okBrd")};
+                &::before { content: ${cssVar("callouts.okIcon")}; }
+            }
+
+            .line-callout-note {
+                background: ${cssVar("callouts.noteBg")};
+                border-left-color: ${cssVar("callouts.noteBrd")};
+                &::before { content: ${cssVar("callouts.noteIcon")}; }
+            }
+
+            .callout-underline {
+                text-decoration: wavy underline;
+                text-decoration-skip-ink: none;
+                text-underline-offset: 2px;
+            }
+
+            .callout-underline-error { text-decoration-color: ${cssVar("callouts.errUnderline")}; }
+            .callout-underline-warn { text-decoration-color: ${cssVar("callouts.warnUnderline")}; }
+        `,
         hooks: {
             postprocessRenderedLine: ({ codeBlock, lineIndex, renderData }) => {
                 const data = pluginBlockConfigData.getOrCreateFor(codeBlock);
@@ -194,8 +261,6 @@ export function pluginLineCallouts(): ExpressiveCodePlugin {
 
                 for (const callout of lineCallouts) {
                     lineAst.properties[`data-callout-${callout.type}`] = "";
-
-                    // Add squiggly underline for column ranges
                     wrapColumnRange(lineAst, callout);
 
                     const htmlTree = fromHtml(callout.html, { fragment: true });

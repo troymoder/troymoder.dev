@@ -1,8 +1,7 @@
 import { AttachedPluginData, type ExpressiveCodePlugin } from "astro-expressive-code";
 import type { Element } from "hast";
-import { getSection, pluginBlockConfigData } from "./block-config";
-import indentFoldClient from "./indent-fold.client.js?raw";
-import indentFoldCss from "./indent-fold.css?raw";
+import { getSection, pluginBlockConfigData } from "./block-config.ts";
+import foldingClient from "./folding.client.js?raw";
 
 interface FoldRegion {
     start: number;
@@ -92,19 +91,80 @@ function parseRegions(lines: string[], collapsedLines: Set<number>): FoldRegion[
     });
 }
 
-interface PluginIndentFoldData {
+interface PluginFoldingData {
     foldRegions: FoldRegion[];
 }
 
-export const pluginIndentFoldData = new AttachedPluginData<PluginIndentFoldData>(
+export const pluginFoldingData = new AttachedPluginData<PluginFoldingData>(
     () => ({ foldRegions: [] }),
 );
 
-export function pluginIndentFold(): ExpressiveCodePlugin {
+export function pluginFolding(): ExpressiveCodePlugin {
     return {
-        name: "indent-fold",
-        baseStyles: indentFoldCss,
-        jsModules: [indentFoldClient],
+        name: "folding",
+        baseStyles: ({ cssVar }) => `
+            .ec-line[data-foldable] .gutter { position: relative; }
+
+            .ec-line[data-foldable] .fold-chevron {
+                display: inline-flex;
+                width: 1.2em;
+                height: 1lh;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                pointer-events: auto !important;
+                opacity: 0;
+                transition: opacity 0.15s ease, color 0.15s ease;
+                color: ${cssVar("gutterForeground")};
+                user-select: none;
+                position: absolute;
+                transform: translateX(-1px);
+                right: 0;
+                top: 0;
+
+                &::before {
+                    content: "";
+                    width: 0;
+                    height: 0;
+                    border-left: 5px solid currentColor;
+                    border-top: 4px solid transparent;
+                    border-bottom: 4px solid transparent;
+                    transition: transform 0.15s ease;
+                    transform: rotate(90deg);
+                }
+
+                &:hover { color: ${cssVar("codeForeground")}; }
+            }
+
+            .expressive-code:hover .ec-line[data-foldable] .fold-chevron { opacity: 1; }
+
+            .ec-line[data-collapsed] .fold-chevron {
+                opacity: 1;
+                &::before { transform: rotate(0deg); }
+            }
+
+            .ec-line[data-folded] { display: none !important; }
+
+            .fold-ellipsis {
+                display: none;
+                color: #6b6b6b;
+                font-style: normal;
+                cursor: pointer;
+                user-select: none;
+                border: none;
+                background: #f9c89b4d;
+                border-radius: 3px;
+                margin-left: 0.5em;
+                padding: 0 0.4em;
+                font: inherit;
+                transition: background 0.15s ease, color 0.15s ease;
+
+                &:hover { color: #232333; background: #f9c89be6; }
+            }
+
+            .ec-line[data-collapsed] .fold-ellipsis { display: inline; }
+        `,
+        jsModules: [foldingClient],
         hooks: {
             preprocessCode: ({ codeBlock }) => {
                 const blockConfigData = pluginBlockConfigData.getOrCreateFor(codeBlock);
@@ -115,11 +175,11 @@ export function pluginIndentFold(): ExpressiveCodePlugin {
                 const regions = parseRegions(lines, collapsedLines);
 
                 if (regions.length === 0) return;
-                const data = pluginIndentFoldData.getOrCreateFor(codeBlock);
+                const data = pluginFoldingData.getOrCreateFor(codeBlock);
                 data.foldRegions = regions;
             },
             postprocessRenderedLine: ({ codeBlock, lineIndex, renderData }) => {
-                const data = pluginIndentFoldData.getOrCreateFor(codeBlock);
+                const data = pluginFoldingData.getOrCreateFor(codeBlock);
                 const foldRegions = data.foldRegions;
                 if (!foldRegions) return;
 

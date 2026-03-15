@@ -83,7 +83,7 @@ function getCodeText(node) {
         if (child.nodeType === Node.TEXT_NODE) {
             text += child.textContent;
         } else if (child.nodeType === Node.ELEMENT_NODE) {
-            if (child.hasAttribute("data-no-copy") || child.classList.contains("hover-tooltip")) {
+            if (child.hasAttribute("data-no-copy")) {
                 continue;
             }
             text += getCodeText(child);
@@ -114,7 +114,7 @@ function findTextPosition(codeDiv, charIndex) {
             }
             currentChar += len;
         } else if (node.nodeType === Node.ELEMENT_NODE) {
-            if (node.hasAttribute("data-no-copy") || node.classList.contains("hover-tooltip")) {
+            if (node.hasAttribute("data-no-copy")) {
                 return null;
             }
             for (const child of node.childNodes) {

@@ -1,7 +1,6 @@
 import { type ExpressiveCodePlugin } from "astro-expressive-code";
-import { getSection, pluginBlockConfigData } from "./block-config";
-import codeAnchorsClient from "./code-anchors.client.js?raw";
-import codeAnchorsCss from "./code-anchors.css?raw";
+import anchorsClient from "./anchors.client.js?raw";
+import { getSection, pluginBlockConfigData } from "./block-config.ts";
 
 interface AnchorConfig {
     blockId?: string;
@@ -30,11 +29,35 @@ function parseAnchorSection(lines: string[]): AnchorConfig {
     return config;
 }
 
-export function pluginCodeAnchors(): ExpressiveCodePlugin {
+export function pluginAnchors(): ExpressiveCodePlugin {
     return {
-        name: "code-anchors",
-        baseStyles: codeAnchorsCss,
-        jsModules: [codeAnchorsClient],
+        name: "anchors",
+        baseStyles: `
+            .ec-line[data-anchor-highlight="full"] {
+                background: rgba(255, 213, 0, 0.25);
+                animation: anchor-highlight-fade 3s ease-out forwards;
+            }
+
+            .ec-line[data-anchor-highlight="partial"] .code {
+                position: relative;
+            }
+
+            .anchor-highlight-overlay {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                background: rgba(255, 213, 0, 0.25);
+                animation: anchor-highlight-fade 3s ease-out forwards;
+                pointer-events: none;
+            }
+
+            @keyframes anchor-highlight-fade {
+                0% { background: rgba(255, 213, 0, 0.3); }
+                70% { background: rgba(255, 213, 0, 0.15); }
+                100% { background: transparent; }
+            }
+        `,
+        jsModules: [anchorsClient],
         hooks: {
             postprocessRenderedBlock: ({ codeBlock, renderData }) => {
                 const data = pluginBlockConfigData.getOrCreateFor(codeBlock);
