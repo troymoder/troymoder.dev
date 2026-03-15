@@ -101,8 +101,8 @@ jobs:
         id: deploy
         run: |
           surge ./dist --preview --domain ${{ vars.SURGE_DOMAIN }} --token ${{ secrets.SURGE_TOKEN }} | tee output.txt
-          PREVIEW_URL=$(grep -oE '[0-9]+-[^[:space:]]+\.surge\.sh' output.txt)
-          echo "preview-url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+          PREVIEW_DOMAIN=$(grep "Live preview" output.txt | grep -oE '[0-9]+-[^[:space:]]+\.surge\.sh')
+          echo "preview-url=https://$PREVIEW_DOMAIN" >> "$GITHUB_OUTPUT"
 
       - uses: marocchino/sticky-pull-request-comment@v3
         name: Sticky pull request comment
