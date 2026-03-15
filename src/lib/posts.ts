@@ -1,4 +1,4 @@
-import { type CollectionEntry, getCollection } from "astro:content";
+import { type CollectionEntry, getCollection, render } from "astro:content";
 
 export type Post = CollectionEntry<"blog"> & {
     data: {
@@ -10,7 +10,7 @@ export async function getPosts() {
     const posts: Post[] = await getCollection("blog");
 
     for (const post of posts) {
-        const { remarkPluginFrontmatter } = await post.render();
+        const { remarkPluginFrontmatter } = await render(post);
         post.data.minutesRead = remarkPluginFrontmatter.minutesRead;
     }
 
