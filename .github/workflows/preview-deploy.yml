@@ -1,0 +1,56 @@
+name: Deploy Preview
+
+on:
+  workflow_call:
+    outputs:
+      preview-url:
+        description: "The deployed preview URL"
+        value: ${{ jobs.deploy.outputs.preview-url }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: surge-preview
+      url: ${{ steps.deploy.outputs.preview-url }}
+    outputs:
+      preview-url: ${{ steps.deploy.outputs.preview-url }}
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: website-build
+          path: website.tar.gz
+
+      - name: Extract artifact
+        run: |
+          set -eo pipefail
+          tar -xzf website.tar.gz
+
+      - name: Install Surge
+        run: npm install --global surge
+
+      - name: Deploy to Surge
+        id: deploy
+        run: |
+          OUTPUT=$(surge ./dist ${{ vars.SURGE_DOMAIN }} --preview --token ${{ secrets.SURGE_TOKEN }})
+          PREVIEW_URL=$(echo "$OUTPUT" | grep -oE 'https://[^ ]+\.surge\.sh')
+          echo "preview-url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@v3
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.number }}
+          comment-author: "github-actions[bot]"
+          body-includes: "🚀 Preview deployed"
+
+      - name: Comment on PR
+        if: steps.find-comment.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.number }}
+          body: |
+            🚀 **Preview deployed!**
+
+            ${{ steps.deploy.outputs.preview-url }}

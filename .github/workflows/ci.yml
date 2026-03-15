@@ -70,6 +70,12 @@ jobs:
     permissions: *read-permissions
     secrets: inherit
 
+  preview:
+    name: Preview
+    uses: ./.github/workflows/preview-deploy.yml
+    secrets: inherit
+    needs: [build]
+
   status:
     name: Status
     runs-on: ubuntu-latest
