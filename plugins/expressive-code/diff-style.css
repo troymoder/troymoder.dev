@@ -11,7 +11,7 @@
 .expressive-code .ec-line.ins,
 .expressive-code .ec-line.del {
   .gutter {
-    margin-inline-start: -3px;
+    margin-inline-start: -4px;
   }
   .code {
     &::before {

@@ -189,7 +189,7 @@ function highlightRange(parsed) {
 
     const firstLine = block.querySelector(`.ec-line[data-line-num="${startLine - 1}"]`);
     if (firstLine) {
-        firstLine.scrollIntoView({ behavior: "smooth", block: "center" });
+        firstLine.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 
     return true;
