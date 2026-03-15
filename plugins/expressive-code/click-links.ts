@@ -26,31 +26,42 @@ export const clickLinksStyleSettings = new PluginStyleSettings({
 interface ClickLink {
     target: string;
     href: string;
-    line?: number;
+    lines?: number[];
 }
 
-function parseLinksSection(lines: string[]): ClickLink[] {
+function parseLinksSection(lines: string[], anchor?: string): ClickLink[] {
     const links: ClickLink[] = [];
 
     for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed) continue;
 
-        const match = trimmed.match(/^(.+?):\s*(.+)$/);
-        if (!match) continue;
+        const arrowIdx = trimmed.lastIndexOf(" -> ");
+        let targetPart: string;
+        let href: string;
 
-        const target = match[1]!.trim();
-        const href = match[2]!.trim();
-        const lineMatch = target.match(/^(.+?)@(\d+)$/);
+        if (arrowIdx !== -1) {
+            targetPart = trimmed.slice(0, arrowIdx).trim();
+            href = trimmed.slice(arrowIdx + 4).trim();
+        } else {
+            const colonMatch = trimmed.match(/^(.+?):\s+(.+)$/);
+            if (!colonMatch) continue;
+            targetPart = colonMatch[1]!.trim();
+            href = colonMatch[2]!.trim();
+        }
+
+        if (href.startsWith(":") && anchor) {
+            href = `#${anchor}${href}`;
+        }
+
+        const lineMatch = targetPart.match(/^(.+?)@([\d,]+)$/);
 
         if (lineMatch) {
-            links.push({
-                target: lineMatch[1]!,
-                href,
-                line: parseInt(lineMatch[2]!, 10) - 1,
-            });
+            const target = lineMatch[1]!;
+            const lineNums = lineMatch[2]!.split(",").map(n => parseInt(n.trim(), 10) - 1);
+            links.push({ target, href, lines: lineNums });
         } else {
-            links.push({ target, href });
+            links.push({ target: targetPart, href });
         }
     }
 
@@ -62,7 +73,7 @@ function wrapTextWithLink(
     lineIndex: number,
     link: ClickLink,
 ): boolean {
-    if (link.line !== undefined && link.line !== lineIndex) {
+    if (link.lines !== undefined && !link.lines.includes(lineIndex)) {
         return false;
     }
 
@@ -130,7 +141,10 @@ export function pluginClickLinks(): ExpressiveCodePlugin {
                 const linkLines = getSection(data.sections, "links");
                 if (!linkLines) return;
 
-                const links = parseLinksSection(linkLines);
+                const anchorLines = getSection(data.sections, "anchor");
+                const anchor = anchorLines?.[0]?.trim();
+
+                const links = parseLinksSection(linkLines, anchor);
                 if (links.length === 0) return;
 
                 const lineAst = renderData.lineAst;

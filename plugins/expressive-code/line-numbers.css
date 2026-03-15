@@ -1,13 +1,13 @@
 .gutter .ln {
-    display: inline-flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-    box-sizing: content-box;
-    min-width: var(--lnWidth, 2ch);
-    padding-inline: 2ch;
-    color: var(--ec-lineNumbers-foreground, inherit);
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  box-sizing: content-box;
+  min-width: var(--lnWidth, 2ch);
+  padding-inline: 2ch;
+  color: var(--ec-lineNumbers-foreground, inherit);
 
-    .highlight & {
-        color: var(--ec-lineNumbers-highlightForeground, inherit);
-    }
+  .highlight & {
+    color: var(--ec-lineNumbers-highlightForeground, inherit);
+  }
 }

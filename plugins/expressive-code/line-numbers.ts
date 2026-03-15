@@ -1,8 +1,8 @@
 import { type ExpressiveCodePlugin } from "astro-expressive-code";
 import { h, setInlineStyle } from "astro-expressive-code/hast";
-import { getSection, pluginBlockConfigData, type BlockConfigSection } from "./block-config";
-import lineNumbersCss from "./line-numbers.css?raw";
+import { type BlockConfigSection, getSection, pluginBlockConfigData } from "./block-config";
 import { parseDiffSection } from "./diff-style";
+import lineNumbersCss from "./line-numbers.css?raw";
 
 function getDeletedLines(sections: BlockConfigSection[]): Set<number> {
     const diffLines = getSection(sections, "diff");

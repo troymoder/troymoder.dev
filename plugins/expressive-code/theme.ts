@@ -40,11 +40,11 @@ export const troyModerTheme = new ExpressiveCodeTheme({
         },
         {
             scope: ["keyword", "storage.type", "storage.modifier"],
-            settings: { foreground: "#d73a49" },
+            settings: { foreground: "#AB3AD7" },
         },
         {
             scope: ["entity.name.function", "support.function"],
-            settings: { foreground: "#6f42c1" },
+            settings: { foreground: "#425EC1" },
         },
         {
             scope: ["entity.name.type", "entity.name.class", "support.type", "support.class"],

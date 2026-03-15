@@ -24,13 +24,10 @@ Here is a simple service in rust using the [`axum`](https://docs.rs/axum) crate.
 ::: anchor
 rust-first-example
 ::: links
-PingRequest@12: #rust-first-example:2/PingRequest/
-PingResponse@13: #rust-first-example:7/PingResponse/
-PingResponse@19: #rust-first-example:7/PingResponse/
-message@14: #rust-first-example:3/message/
-message@20: #rust-first-example:3/message/
-req@14: #rust-first-example:12/req/
-req@20: #rust-first-example:12/req/
+PingRequest@13,14 -> :2/PingRequest/
+PingResponse@14,19 -> :7/PingResponse/
+message@15,20 -> :3/message/
+response@20 -> :8/response/
 :::
 #[derive(Deserialize)]
 struct PingRequest {
@@ -186,18 +183,11 @@ With `utoipa` you can write something like the following:
 ::: anchor
 rust-example-utoipa
 ::: links
-ping@3: #rust-example-utoipa:30/fn ping/
-PingRequest@4: #rust-example-utoipa:10/PingRequest/
-PingResponse@4: #rust-example-utoipa:16/PingResponse/
-PingRequest@24: #rust-example-utoipa:10/PingRequest/
-PingResponse@26: #rust-example-utoipa:16/PingResponse/
-PingRequest@31: #rust-example-utoipa:10/PingRequest/
-PingResponse@32: #rust-example-utoipa:16/PingResponse/
-message@33: #rust-example-utoipa:12/message/
-req@33: #rust-example-utoipa:31/req/
-PingResponse@37: #rust-example-utoipa:16/PingResponse/
-message@38: #rust-example-utoipa:12/message/
-req@38: #rust-example-utoipa:31/req/
+ping@3 -> :30/ping/
+PingRequest@4,24,31 -> :10/PingRequest/
+PingResponse@4,26,32,37 -> :16/PingResponse/
+message@33,38 -> :12/message/
+response@38 -> :17/response/
 :::
 #[derive(OpenApi)]
 #[openapi(
@@ -248,7 +238,7 @@ You can access the generated spec using the following code.
 
 ```rs
 ::: links
-ApiDoc: #rust-example-utoipa:7/ApiDoc/
+ApiDoc@1 -> #rust-example-utoipa:7/ApiDoc/
 :::
 let spec = ApiDoc::openapi();
 let spec_json = serde_json::to_string(&spec).unwrap();
@@ -263,17 +253,11 @@ allows you to annotate the structs to enforce the checks.
 ::: anchor
 rust-validator-example
 ::: links
-starts_with_hello@13: #rust-validator-example:1/starts_with_hello/
-PingRequest@22: #rust-validator-example:12/PingRequest/
-PingResponse@24: #rust-validator-example:19/PingResponse/
-PingRequest@27: #rust-validator-example:12/PingRequest/
-PingResponse@28: #rust-validator-example:19/PingResponse/
-PingRequest@34: #rust-validator-example:12/PingRequest/
-PingResponse@35: #rust-validator-example:19/PingResponse/
-message@39: #rust-validator-example:15/message/
-req@36: #rust-validator-example:34/req/
-req@39: #rust-validator-example:34/req/
-PingResponse@38: #rust-validator-example:19/PingResponse/
+starts_with_hello@13 -> :1/starts_with_hello/
+PingRequest@27,34 -> :12/PingRequest/
+PingResponse@29,35,38 -> :19/PingResponse/
+message@39 -> :15/message/
+response@39 -> :20/response/
 :::
 fn starts_with_hello(
     message: &str,
@@ -333,8 +317,8 @@ Here is an example of our simple ping-pong service using Protobuf & gRPC.
 ::: anchor
 proto-example
 ::: links
-PingRequest@14: #proto-example:5/PingRequest/
-PingResponse@14: #proto-example:9/PingResponse/
+PingRequest@14 -> :5/PingRequest/
+PingResponse@14 -> :9/PingResponse/
 :::
 syntax = "proto3";
 
@@ -359,20 +343,16 @@ Then in rust using [`tonic`](https://docs.rs/tonic) you can implement it like so
 ::: anchor
 rust-tonic-example
 ::: links
-ping@4: #proto-example:3/ping/
-PingService@11: #proto-example:13/PingService/
-MyPingService@11: #rust-tonic-example:8/MyPingService/
-PingRequest@14: #proto-example:5/PingRequest/
-PingResponse@15: #proto-example:9/PingResponse/
-message@18: #proto-example:6/message/
-req@18: #rust-tonic-example:16/req/
-PingResponse@24: #proto-example:9/PingResponse/
-message@25: #proto-example:6/message/
-req@25: #rust-tonic-example:16/req/
+ping@3 -> #proto-example:3/ping/
+MyPingService@10 -> :7/MyPingService/
+PingService@10 -> #proto-example:13/PingService/
+PingRequest@13 -> #proto-example:5/PingRequest/
+PingResponse@14,23 -> #proto-example:9/PingResponse/
+message@17,24 -> #proto-example:6/message/
+response@24 -> #proto-example:10/response/
 :::
 pub mod pb {
-    // definitions are automatically generated at
-    // compile time
+    // definitions are generated at compile time
     tonic::include_proto!("ping");
 }
 
@@ -413,12 +393,8 @@ tinc-proto-diff
 ins: 3, 9-11, 20-22
 del: 8, 19
 ::: links
-PingRequest@7: #tinc-proto-diff:7/PingRequest/
-PingResponse@14: #tinc-proto-diff:14/PingResponse/
-PingRequest@19: #tinc-proto-diff:7/PingRequest/
-PingResponse@19: #tinc-proto-diff:14/PingResponse/
-PingRequest@20: #tinc-proto-diff:7/PingRequest/
-PingResponse@20: #tinc-proto-diff:14/PingResponse/
+PingRequest@20 -> :7/PingRequest/
+PingResponse@20 -> :14/PingResponse/
 :::
 syntax = "proto3";
 
@@ -452,24 +428,21 @@ macro to be from `tinc` instead of `tonic`.
 ::: anchor
 tinc-rust-diff
 ::: diff
-ins: 5
-del: 4
+ins: 4
+del: 3,18-23
+::: collapse
+18
 ::: links
-MyPingService@9: #tinc-rust-diff:9/MyPingService/
-PingService@12: #tinc-proto-diff:18/PingService/ 
-MyPingService@12: #tinc-rust-diff:9/MyPingService/
-PingRequest@15: #tinc-proto-diff:7/PingRequest/
-PingResponse@16: #tinc-proto-diff:14/PingResponse/
-req@17: #tinc-rust-diff:17/req/
-message@19: #tinc-proto-diff:9/message/
-req@19: #tinc-rust-diff:17/req/
-PingResponse@25: #tinc-proto-diff:14/PingResponse/
-message@26: #tinc-proto-diff:9/message/
-req@26: #tinc-rust-diff:17/req/
+ping@4 -> #tinc-proto-diff:5/ping/
+MyPingService@11 -> :8/MyPingService/
+PingService@11 -> #tinc-proto-diff:18/PingService/
+PingRequest@14 -> #tinc-proto-diff:7/PingRequest/
+PingResponse@15,24 -> #tinc-proto-diff:14/PingResponse/
+message@18,25 -> #tinc-proto-diff:9/message/
+response@25 -> #tinc-proto-diff:15/response/
 :::
 pub mod pb {
-    // definitions are automatically generated at
-    // compile time
+    // definitions are generated at compile time
     tonic::include_proto!("ping");
     tinc::include_proto!("ping");
 }
