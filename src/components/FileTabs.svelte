@@ -145,7 +145,7 @@
         border-radius: 6px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         padding: 0.25rem 0;
-        z-index: 10;
+        z-index: 100;
 
         .dropdown-open & {
           display: flex;

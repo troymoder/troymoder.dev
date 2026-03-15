@@ -138,7 +138,6 @@ export function pluginDiff(): ExpressiveCodePlugin {
                 margin-bottom: 0.25rem;
                 position: sticky;
                 left: 0;
-                z-index: 1;
             }
 
             .diff-toggle-btn {
