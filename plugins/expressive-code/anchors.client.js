@@ -153,11 +153,30 @@
         return overlay;
     }
 
+    function switchToTabIfNeeded(block) {
+        const tabsContent = block.closest(".tabs-content");
+        if (!tabsContent) return;
+
+        const fileTabs = tabsContent.closest(".file-tabs");
+        if (!fileTabs) return;
+
+        console.log(fileTabs);
+
+        const codeBlocks = tabsContent.querySelectorAll(".expressive-code");
+        console.log(codeBlocks);
+        const index = Array.from(codeBlocks).indexOf(block.closest(".expressive-code"));
+        console.log(index);
+        if (index !== -1) {
+            fileTabs.dataset.activeTab = String(index);
+        }
+    }
+
     function highlightRange(parsed) {
         const { blockId, startLine, endLine, pattern } = parsed;
         const block = document.getElementById(blockId);
         if (!block) return false;
 
+        switchToTabIfNeeded(block);
         expandFoldedRegions(block, startLine, endLine);
 
         for (let i = startLine; i <= endLine; i++) {

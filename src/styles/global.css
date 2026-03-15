@@ -120,12 +120,7 @@ code {
 }
 
 .expressive-code {
-  --space-left-code: 3.5em;
-  margin-left: calc(-1 * var(--space-left-code) - 1em);
-
-  .ec-line[data-folded] {
-    display: none !important;
-  }
+  margin-left: calc(-1em - 1px);
 }
 
 .content {

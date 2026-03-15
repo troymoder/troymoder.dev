@@ -21,11 +21,15 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
                 justify-content: flex-end;
                 align-items: flex-start;
                 box-sizing: content-box;
-                min-width: var(--lnWidth, 2ch);
+                min-width: var(--lnWidth);
                 padding-inline: 1.5ch 2.5ch;
                 color: ${cssVar("gutterForeground")};
 
                 .highlight & { color: ${cssVar("gutterHighlightForeground")}; }
+            }
+
+            pre {
+                margin-left: calc(-1 * (var(--lnWidth) + 4ch));
             }
         `,
         hooks: {
@@ -58,9 +62,7 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
                 const endLineNumber = totalLines - deletedLines.size;
                 const lnWidth = endLineNumber.toString().length;
 
-                if (lnWidth > 2) {
-                    setInlineStyle(renderData.blockAst, "--lnWidth", `${lnWidth}ch`);
-                }
+                setInlineStyle(renderData.blockAst, "--lnWidth", `${lnWidth}ch`);
             },
         },
     };

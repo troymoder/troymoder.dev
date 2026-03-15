@@ -1,5 +1,6 @@
 import { type ExpressiveCodePlugin, PluginStyleSettings } from "astro-expressive-code";
 import type { Element } from "hast";
+import { fromHtml } from "hast-util-from-html";
 import { getSection, pluginBlockConfigData } from "./block-config.ts";
 import copyClient from "./copy.client.js?raw";
 import copyIcon from "./copy.svg?raw";
@@ -122,12 +123,7 @@ export function pluginCopy(): ExpressiveCodePlugin {
                         title: "Copy code",
                         "aria-label": "Copy code to clipboard",
                     },
-                    children: [
-                        {
-                            type: "raw",
-                            value: copyIcon,
-                        },
-                    ],
+                    children: fromHtml(copyIcon).children as Element[],
                 };
 
                 const feedback: Element = {
