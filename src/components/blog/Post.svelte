@@ -107,6 +107,7 @@
       font-weight: 400;
       font-size: 0.75em;
       margin-inline-start: 1ch;
+      white-space: nowrap;
     }
 
     .meta {

@@ -32,6 +32,6 @@ export default defineEcConfig({
         codeFontSize: "1em",
         codeLineHeight: "1.4",
         codePaddingBlock: "1em",
-        codePaddingInline: "1em",
+        codePaddingInline: "1.5em",
     },
 });

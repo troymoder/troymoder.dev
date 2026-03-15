@@ -6,13 +6,6 @@
         if (!diffBlock || !mode) return;
 
         diffBlock.dataset.diffMode = mode;
-
-        const wrapper = btn.parentNode;
-        if (!wrapper) return;
-
-        for (const sibling of wrapper.querySelectorAll(".diff-toggle-btn")) {
-            sibling.classList.toggle("active", sibling.dataset.mode === mode);
-        }
     }
 
     function init() {

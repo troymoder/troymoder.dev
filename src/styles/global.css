@@ -120,12 +120,12 @@ code {
 }
 
 .expressive-code {
-  margin-left: calc(-1em - 1px);
+  margin-left: calc(-1.5em - 1px);
 }
 
 .content {
   margin-block-end: 4em;
   margin-inline: auto;
   max-inline-size: var(--content-max-width);
-  padding-inline: 4.5em 2em;
+  padding-inline: 2em 0.5em;
 }

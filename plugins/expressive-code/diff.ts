@@ -87,7 +87,7 @@ export function pluginDiff(): ExpressiveCodePlugin {
         name: "diff",
         styleSettings: diffStyleSettings,
         jsModules: [diffClient],
-        baseStyles: ({ cssVar, cssVarName }) => `
+        baseStyles: ({ cssVar }) => `
             .diff-block[data-diff-mode="diff"] {
                 .ec-line.ins {
                     background: ${cssVar("diff.lineInsertedBackground")};
@@ -114,7 +114,7 @@ export function pluginDiff(): ExpressiveCodePlugin {
                     .code {
                         &::before {
                             position: absolute;
-                            left: 0.25em;
+                            left: calc(0.5ch + 1px);
                             font-family: monospace;
                             text-align: center;
                         }
@@ -124,6 +124,12 @@ export function pluginDiff(): ExpressiveCodePlugin {
 
             .diff-block[data-diff-mode="plain"] .ec-line.del {
                 display: none;
+            }
+
+            .diff-block[data-diff-mode="diff"] .diff-toggle-btn[data-mode="diff"],
+            .diff-block[data-diff-mode="plain"] .diff-toggle-btn[data-mode="plain"] {
+                color: ${cssVar("diff.toggleActiveColor")};
+                border-bottom-color: ${cssVar("diff.toggleActiveColor")};
             }
 
             .diff-block {
@@ -154,10 +160,6 @@ export function pluginDiff(): ExpressiveCodePlugin {
 
                 &:hover {
                     color: ${cssVar("diff.toggleActiveColor")};
-                }
-                &.active {
-                    color: ${cssVar("diff.toggleActiveColor")};
-                    border-bottom-color: ${cssVar("diff.toggleActiveColor")};
                 }
             }
         `,
@@ -196,7 +198,7 @@ export function pluginDiff(): ExpressiveCodePlugin {
                     type: "element",
                     tagName: "button",
                     properties: {
-                        className: ["diff-toggle-btn", "active"],
+                        className: ["diff-toggle-btn"],
                         type: "button",
                         "data-mode": "diff",
                     },

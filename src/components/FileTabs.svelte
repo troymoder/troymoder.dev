@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import type { Snippet } from "svelte";
 
     type Props = {
@@ -7,16 +8,18 @@
         children: Snippet;
     };
 
-    const { files, activeIndex = 0, children }: Props = $props();
+    const { files, activeIndex: initialActiveIndex = 0, children }: Props = $props();
 
     let fileTabs: HTMLDivElement;
-    let activeTab = $state(activeIndex);
+    let activeIndex = $state<number | null>(null);
     let dropdownOpen = $state(false);
 
     function selectTab(index: number) {
-        activeTab = index;
+        activeIndex = index;
         dropdownOpen = false;
     }
+
+    const currentIndex = $derived(activeIndex ?? initialActiveIndex);
 
     function toggleDropdown() {
         dropdownOpen = !dropdownOpen;
@@ -28,26 +31,44 @@
             dropdownOpen = false;
         } else if (e.key === "ArrowDown") {
             e.preventDefault();
-            activeTab = (activeTab + 1) % files.length;
+            activeIndex = (currentIndex + 1) % files.length;
         } else if (e.key === "ArrowUp") {
             e.preventDefault();
-            activeTab = (activeTab - 1 + files.length) % files.length;
+            activeIndex = (currentIndex - 1 + files.length) % files.length;
         } else if (e.key === "Enter") {
             dropdownOpen = false;
         }
     }
 
-    function handleClickOutside(e: MouseEvent) {
-        const target = e.target as HTMLElement;
-        if (!target.closest(".tabs-bar")) {
-            dropdownOpen = false;
+    onMount(() => {
+        const diffBlocks = fileTabs.querySelectorAll<HTMLElement>(".diff-block");
+
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.attributeName !== "data-diff-mode") continue;
+                const target = mutation.target as HTMLElement;
+                const mode = target.dataset.diffMode;
+                if (!mode) continue;
+
+                for (const block of diffBlocks) {
+                    if (block !== target && block.dataset.diffMode !== mode) {
+                        block.dataset.diffMode = mode;
+                    }
+                }
+            }
+        });
+
+        for (const block of diffBlocks) {
+            observer.observe(block, {
+                attributeFilter: ["data-diff-mode"],
+            });
         }
-    }
+
+        return () => observer.disconnect();
+    });
 </script>
 
-<svelte:window onclick={handleClickOutside} />
-
-<div class="file-tabs" data-active-tab={activeTab} bind:this={fileTabs}>
+<div class="file-tabs" data-active-tab={currentIndex} bind:this={fileTabs}>
     <div class="tabs-bar" class:dropdown-open={dropdownOpen}>
         <button
             class="dropdown-trigger"
@@ -56,7 +77,7 @@
             onkeydown={handleKeydown}
             aria-expanded={dropdownOpen}
             aria-haspopup="listbox">
-            <span>{files[activeTab]}</span>
+            <span>{files[currentIndex]}</span>
             <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path
                     d="M3 4.5L6 7.5L9 4.5"
@@ -71,7 +92,7 @@
             {#each files as file, i (i)}
                 <button
                     class="tab"
-                    class:active={activeTab === i}
+                    class:active={currentIndex === i}
                     data-tab-index={i}
                     type="button"
                     onclick={() => selectTab(i)}>

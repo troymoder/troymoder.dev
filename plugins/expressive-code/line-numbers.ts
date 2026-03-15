@@ -37,7 +37,7 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
                     position: absolute;
                     inset: 0;
                     z-index: -1;
-                    background: inherit; /* semi-transparent row color */
+                    background: inherit;
                 }
                 + .code {
                     border-inline-start: 0;
@@ -57,7 +57,13 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
             }
 
             pre {
-                margin-left: calc(-1 * (var(--lnWidth) + 4ch));
+                margin-left: min(
+                    -0.5em,
+                    max(
+                        calc(-1 * (100vw - var(--content-max-width)) / 2 + 0.5em),
+                        calc(-1 * (var(--lnWidth) + 4ch))
+                    )
+                );
             }
         `,
         hooks: {
@@ -90,7 +96,7 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
                 const endLineNumber = totalLines - deletedLines.size;
                 const lnWidth = endLineNumber.toString().length;
 
-                setInlineStyle(renderData.blockAst, "--lnWidth", `${lnWidth}ch`);
+                setInlineStyle(renderData.blockAst, "--lnWidth", `${Math.max(lnWidth, 2)}ch`);
             },
         },
     };
