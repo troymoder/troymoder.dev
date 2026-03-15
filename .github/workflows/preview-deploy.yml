@@ -36,8 +36,8 @@ jobs:
       - name: Deploy to Surge
         id: deploy
         run: |
-          OUTPUT=$(surge ./dist --preview --domain ${{ vars.SURGE_DOMAIN }} --token ${{ secrets.SURGE_TOKEN }})
-          PREVIEW_URL=$(echo "$OUTPUT" | grep -oE 'https://[^ ]+\.surge\.sh')
+          surge ./dist --preview --domain ${{ vars.SURGE_DOMAIN }} --token ${{ secrets.SURGE_TOKEN }} | tee output.txt
+          PREVIEW_URL=$(grep -oE 'https://[^ ]+\.surge\.sh' output.txt)
           echo "preview-url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
 
       - uses: marocchino/sticky-pull-request-comment@v3
