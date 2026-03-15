@@ -74,6 +74,9 @@ jobs:
     name: Preview
     if: ${{ github.event_name == 'pull_request' }}
     uses: ./.github/workflows/preview-deploy.yml
+    permissions:
+      contents: read
+      pull-requests: write
     secrets: inherit
     needs: [build]
 
