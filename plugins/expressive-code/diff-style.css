@@ -10,13 +10,16 @@
 
 .expressive-code .ec-line.ins,
 .expressive-code .ec-line.del {
-  .code {
+  .gutter {
     margin-inline-start: -3px;
+  }
+  .code {
     &::before {
       left: -1ch;
     }
   }
 }
+
 
 .expressive-code:has(.diff-view-toggle) figure {
   border-top-left-radius: 0;
@@ -58,19 +61,4 @@
       color: #fff;
     }
   }
-}
-
-figure pre[data-view="old"],
-figure pre[data-view="new"] {
-  display: none;
-}
-
-.expressive-code figure[data-diff-view="old"] pre[data-view="unified"],
-.expressive-code figure[data-diff-view="new"] pre[data-view="unified"] {
-  display: none;
-}
-
-.expressive-code figure[data-diff-view="old"] pre[data-view="old"],
-.expressive-code figure[data-diff-view="new"] pre[data-view="new"] {
-  display: block;
 }

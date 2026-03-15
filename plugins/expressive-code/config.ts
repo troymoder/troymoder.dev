@@ -1,4 +1,3 @@
-import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { defineEcConfig } from "astro-expressive-code";
 import { pluginBlockConfig } from "./block-config.ts";
 import { pluginClickLinks } from "./click-links.ts";
@@ -8,13 +7,14 @@ import { pluginDiffStyle } from "./diff-style.ts";
 import { pluginHoverAnnotations } from "./hover-annotations.ts";
 import { pluginIndentFold } from "./indent-fold.ts";
 import { pluginLineCallouts } from "./line-callouts.ts";
+import { pluginLineNumbers } from "./line-numbers.ts";
 import { troyModerTheme } from "./theme.ts";
 
 export default defineEcConfig({
     themes: [troyModerTheme],
     plugins: [
-        pluginLineNumbers(),
         pluginBlockConfig(),
+        pluginLineNumbers(),
         pluginClickLinks(),
         pluginCodeAnchors(),
         pluginDiffStyle(),
@@ -39,8 +39,5 @@ export default defineEcConfig({
             insBorderColor: "transparent",
             delBorderColor: "transparent",
         },
-    },
-    defaultProps: {
-        showLineNumbers: true,
     },
 });

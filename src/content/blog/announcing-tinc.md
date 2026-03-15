@@ -406,63 +406,94 @@ This is where [tinc](https://docs.rs/tinc) comes in. The above example is not RE
 its a gRPC API. To get a REST API and also an OpenAPI schema we need to "tinc-ify"
 our example.
 
-```diff lang="protobuf"
-  syntax = "proto3";
+```protobuf
+::: anchor
+tinc-proto-diff
+::: diff
+ins: 3, 9-11, 20-22
+del: 8, 19
+::: links
+PingRequest@7: #tinc-proto-diff:7/PingRequest/
+PingResponse@14: #tinc-proto-diff:14/PingResponse/
+PingRequest@19: #tinc-proto-diff:7/PingRequest/
+PingResponse@19: #tinc-proto-diff:14/PingResponse/
+PingRequest@20: #tinc-proto-diff:7/PingRequest/
+PingResponse@20: #tinc-proto-diff:14/PingResponse/
+:::
+syntax = "proto3";
 
-+ import "tinc/annotations.proto";
+import "tinc/annotations.proto";
 
-  package ping;
+package ping;
 
-  message PingRequest {
--     string message = 1;
-+     string message = 1 [(tinc.field).constraint.string = {
-+         match: "^hello:"
-+     }];
-  }
+message PingRequest {
+    string message = 1;
+    string message = 1 [(tinc.field).constraint.string = {
+        match: "^hello:"
+    }];
+}
 
-  message PingResponse {
-      string response = 1;
-  }
+message PingResponse {
+    string response = 1;
+}
 
-  service PingService {
--     rpc Ping(PingRequest) returns PingResponse {};
-+     rpc Ping(PingRequest) returns PingResponse {
-+         option (tinc.method).endpoint = {post: "/ping"};
-+     };
-  }
+service PingService {
+    rpc Ping(PingRequest) returns PingResponse {};
+    rpc Ping(PingRequest) returns PingResponse {
+        option (tinc.method).endpoint = {post: "/ping"};
+    };
+}
 ```
 
 The code for the rust side is almost the same, except we just change the include
-macro to be from `tinc` instead of `tonic`.ss
+macro to be from `tinc` instead of `tonic`.
 
-```diff lang="rs"
-  pub mod pb {
-      // definitions are automatically generated at
-      // compile time
--     tonic::include_proto!("ping");
-+     tinc::include_proto!("ping");
-  }
+```rs
+::: anchor
+tinc-rust-diff
+::: diff
+ins: 5
+del: 4
+::: links
+MyPingService@9: #tinc-rust-diff:9/MyPingService/
+PingService@12: #tinc-proto-diff:18/PingService/ 
+MyPingService@12: #tinc-rust-diff:9/MyPingService/
+PingRequest@15: #tinc-proto-diff:7/PingRequest/
+PingResponse@16: #tinc-proto-diff:14/PingResponse/
+req@17: #tinc-rust-diff:17/req/
+message@19: #tinc-proto-diff:9/message/
+req@19: #tinc-rust-diff:17/req/
+PingResponse@25: #tinc-proto-diff:14/PingResponse/
+message@26: #tinc-proto-diff:9/message/
+req@26: #tinc-rust-diff:17/req/
+:::
+pub mod pb {
+    // definitions are automatically generated at
+    // compile time
+    tonic::include_proto!("ping");
+    tinc::include_proto!("ping");
+}
 
-  #[derive(Debug, Default)]
-  pub struct MyPingService {}
+#[derive(Debug, Default)]
+pub struct MyPingService {}
 
-  #[tonic::async_trait]
-  impl PingService for MyPingService {
-      async fn ping(
-          &self,
-          request: Request<PingRequest>,
-      ) -> Result<Response<PingResponse>, Status> {
-          let req = request.into_inner();
+#[tonic::async_trait]
+impl PingService for MyPingService {
+    async fn ping(
+        &self,
+        request: Request<PingRequest>,
+    ) -> Result<Response<PingResponse>, Status> {
+        let req = request.into_inner();
 
-          if !req.message.starts_with("hello:") {
-              return Err(Status::invalid_argument(
-                  "message must start with 'hello:'",
-              ));
-          }
+        if !req.message.starts_with("hello:") {
+            return Err(Status::invalid_argument(
+                "message must start with 'hello:'",
+            ));
+        }
 
-          Ok(Response::new(PingResponse {
-              response: format!("Pong: {}", req.message),
-          }))
-      }
-  }
+        Ok(Response::new(PingResponse {
+            response: format!("Pong: {}", req.message),
+        }))
+    }
+}
 ```

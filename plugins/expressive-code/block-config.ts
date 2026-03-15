@@ -48,7 +48,7 @@ function parseConfigBlock(lines: string[]): { sections: BlockConfigSection[]; co
             currentSection = trimmed.slice(4).trim();
             currentContent = [];
         } else if (currentSection) {
-            currentContent.push(line);
+            currentContent.push(trimmed);
         }
     }
 
