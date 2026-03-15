@@ -23,11 +23,11 @@ export const diffStyleSettings = new PluginStyleSettings({
         diff: {
             lineInsertedBackground: "rgba(34, 134, 58, 0.1)",
             lineInsertedBorder: "#22863a",
-            lineInsertedIcon: "+",
+            lineInsertedIcon: `"+"`,
             lineInsertedIconColor: "#22863a",
             lineDeletedBackground: "rgba(215, 58, 73, 0.1)",
             lineDeletedBorder: "#d73a49",
-            lineDeletedIcon: "-",
+            lineDeletedIcon: `"-"`,
             lineDeletedIconColor: "#d73a49",
         },
     },
@@ -84,11 +84,19 @@ export function pluginDiff(): ExpressiveCodePlugin {
             .ec-line.ins {
                 background: ${cssVar("diff.lineInsertedBackground")};
                 border-left: 3px solid ${cssVar("diff.lineInsertedBorder")};
+                .gutter::after {
+                    content: ${cssVar("diff.lineInsertedIcon")};
+                    color: ${cssVar("diff.lineInsertedIconColor")};
+                }
             }
 
             .ec-line.del {
                 background: ${cssVar("diff.lineDeletedBackground")};
                 border-left: 3px solid ${cssVar("diff.lineDeletedBorder")};
+                .gutter::after {
+                    content: ${cssVar("diff.lineDeletedIcon")};
+                    color: ${cssVar("diff.lineDeletedIconColor")};
+                }
             }
 
             .ec-line.ins, .ec-line.del {
@@ -104,14 +112,6 @@ export function pluginDiff(): ExpressiveCodePlugin {
                 .code {
                     ${cssVarName("gutterBorderColor")}: transparent;
                 }
-            }
-            .ec-line.ins .gutter::after {
-                content: ${cssVar("diff.lineInsertedIcon")};
-                color: ${cssVar("diff.lineInsertedIconColor")};
-            }
-            .ec-line.del .gutter::after {
-                content: ${cssVar("diff.lineDeletedIcon")};
-                color: ${cssVar("diff.lineDeletedIconColor")};
             }
         `,
         hooks: {
