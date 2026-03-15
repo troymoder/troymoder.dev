@@ -55,11 +55,16 @@
             onclick={toggleDropdown}
             onkeydown={handleKeydown}
             aria-expanded={dropdownOpen}
-            aria-haspopup="listbox"
-        >
+            aria-haspopup="listbox">
             <span>{files[activeTab]}</span>
             <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path
+                    d="M3 4.5L6 7.5L9 4.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
             </svg>
         </button>
         <div class="tabs-list">
@@ -69,8 +74,7 @@
                     class:active={activeTab === i}
                     data-tab-index={i}
                     type="button"
-                    onclick={() => selectTab(i)}
-                >
+                    onclick={() => selectTab(i)}>
                     {file}
                 </button>
             {/each}
