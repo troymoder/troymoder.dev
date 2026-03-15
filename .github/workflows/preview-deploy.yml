@@ -1,4 +1,4 @@
-name: Deploy Preview
+name: Preview
 
 on:
   workflow_call:
@@ -9,6 +9,7 @@ on:
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     environment:
       name: surge-preview
@@ -20,7 +21,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: website-build
-          path: website.tar.gz
 
       - name: Extract artifact
         run: |
