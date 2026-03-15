@@ -1,5 +1,37 @@
-import { type ExpressiveCodePlugin } from "astro-expressive-code";
+import { type ExpressiveCodePlugin, PluginStyleSettings } from "astro-expressive-code";
 import { getSection, pluginBlockConfigData } from "./block-config.ts";
+
+declare module "astro-expressive-code" {
+    export interface StyleSettings {
+        diff: DiffStyleSettings;
+    }
+}
+
+interface DiffStyleSettings {
+    lineInsertedBackground: string;
+    lineInsertedBorder: string;
+    lineInsertedIcon: string;
+    lineInsertedIconColor: string;
+    lineDeletedBackground: string;
+    lineDeletedBorder: string;
+    lineDeletedIcon: string;
+    lineDeletedIconColor: string;
+}
+
+export const diffStyleSettings = new PluginStyleSettings({
+    defaultValues: {
+        diff: {
+            lineInsertedBackground: "rgba(34, 134, 58, 0.1)",
+            lineInsertedBorder: "#22863a",
+            lineInsertedIcon: "+",
+            lineInsertedIconColor: "#22863a",
+            lineDeletedBackground: "rgba(215, 58, 73, 0.1)",
+            lineDeletedBorder: "#d73a49",
+            lineDeletedIcon: "-",
+            lineDeletedIconColor: "#d73a49",
+        },
+    },
+});
 
 interface DiffConfig {
     ins: Set<number>;
@@ -47,15 +79,16 @@ export function parseDiffSection(lines: string[]): DiffConfig {
 export function pluginDiff(): ExpressiveCodePlugin {
     return {
         name: "diff",
+        styleSettings: diffStyleSettings,
         baseStyles: ({ cssVar, cssVarName }) => `
             .ec-line.ins {
-                background: rgba(34, 134, 58, 0.1);
-                border-left: 3px solid #22863a;
+                background: ${cssVar("diff.lineInsertedBackground")};
+                border-left: 3px solid ${cssVar("diff.lineInsertedBorder")};
             }
 
             .ec-line.del {
-                background: rgba(215, 58, 73, 0.1);
-                border-left: 3px solid #d73a49;
+                background: ${cssVar("diff.lineDeletedBackground")};
+                border-left: 3px solid ${cssVar("diff.lineDeletedBorder")};
             }
 
             .ec-line.ins, .ec-line.del {
@@ -72,40 +105,13 @@ export function pluginDiff(): ExpressiveCodePlugin {
                     ${cssVarName("gutterBorderColor")}: transparent;
                 }
             }
-            .ec-line.ins .gutter::after { content: "+"; color: #22863a; }
-            .ec-line.del .gutter::after { content: "-"; color: #d73a49; }
-
-            .expressive-code:has(.diff-view-toggle) {
-                figure {
-                    border-top-left-radius: 0;
-                    border-top-right-radius: 0;
-                }
-                .copy { transform: translateY(calc(0.5rem + 2rem)); }
+            .ec-line.ins .gutter::after {
+                content: ${cssVar("diff.lineInsertedIcon")};
+                color: ${cssVar("diff.lineInsertedIconColor")};
             }
-
-            .diff-view-toggle {
-                display: flex;
-                gap: 2px;
-                padding: 0.5rem;
-                background: ${cssVar("codeBackground")};
-                border: 1px solid ${cssVar("borderColor")};
-                border-bottom: none;
-                border-radius: 5px 5px 0 0;
-
-                button {
-                    padding: 0.2rem 0.5rem;
-                    font-size: 0.7rem;
-                    font-family: system-ui, sans-serif;
-                    background: rgba(255, 255, 255, 0.9);
-                    border: 1px solid #e0e0e0;
-                    border-radius: 3px;
-                    cursor: pointer;
-                    color: #666;
-                    transition: all 0.15s ease;
-
-                    &:hover { background: #f5f5f5; color: #333; }
-                    &.active { background: #333; border-color: #333; color: #fff; }
-                }
+            .ec-line.del .gutter::after {
+                content: ${cssVar("diff.lineDeletedIcon")};
+                color: ${cssVar("diff.lineDeletedIconColor")};
             }
         `,
         hooks: {

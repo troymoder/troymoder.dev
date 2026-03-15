@@ -11,53 +11,55 @@ declare module "astro-expressive-code" {
 }
 
 interface CalloutsStyleSettings {
-    errBg: string;
-    errBrd: string;
-    errIcon: string;
-    errUnderline: string;
-    warnBg: string;
-    warnBrd: string;
+    errorBackground: string;
+    errorBorder: string;
+    errorIcon: string;
+    errorUnderline: string;
+    warnBackground: string;
+    warnBorder: string;
     warnIcon: string;
     warnUnderline: string;
-    infoBg: string;
-    infoBrd: string;
+    infoBackground: string;
+    infoBorder: string;
     infoIcon: string;
-    okBg: string;
-    okBrd: string;
+    okBackground: string;
+    okBorder: string;
     okIcon: string;
-    noteBg: string;
-    noteBrd: string;
+    noteBackground: string;
+    noteBorder: string;
     noteIcon: string;
-    txt: string;
-    pad: string;
-    font: string;
-    fontSz: string;
+    textColor: string;
+    codeBackground: string;
+    padding: string;
+    fontFamily: string;
+    fontSize: string;
 }
 
 export const calloutsStyleSettings = new PluginStyleSettings({
     defaultValues: {
         callouts: {
-            errBg: "#fef2f2",
-            errBrd: "#fca5a5",
-            errIcon: "'🚫'",
-            errUnderline: "#dc2626",
-            warnBg: "#fffbeb",
-            warnBrd: "#fcd34d",
+            errorBackground: "#fef2f2",
+            errorBorder: "#fca5a5",
+            errorIcon: "'🚫'",
+            errorUnderline: "#dc2626",
+            warnBackground: "#fffbeb",
+            warnBorder: "#fcd34d",
             warnIcon: "'⚠️'",
             warnUnderline: "#d97706",
-            infoBg: "#eff6ff",
-            infoBrd: "#93c5fd",
+            infoBackground: "#eff6ff",
+            infoBorder: "#93c5fd",
             infoIcon: "'ℹ️'",
-            okBg: "#f0fdf4",
-            okBrd: "#86efac",
+            okBackground: "#f0fdf4",
+            okBorder: "#86efac",
             okIcon: "'✅'",
-            noteBg: "#f5f5f5",
-            noteBrd: "#d4d4d4",
+            noteBackground: "#f5f5f5",
+            noteBorder: "#d4d4d4",
             noteIcon: "'📝'",
-            txt: "#27272a",
-            pad: "0.5rem 0.75rem",
-            font: "system-ui, -apple-system, sans-serif",
-            fontSz: "0.8125rem",
+            textColor: "#27272a",
+            codeBackground: "rgba(0, 0, 0, 0.08)",
+            padding: "0.5rem 0.75rem",
+            fontFamily: "system-ui, -apple-system, sans-serif",
+            fontSize: "0.8125rem",
         },
     },
 });
@@ -71,8 +73,8 @@ interface Callout {
     type: CalloutType;
     message: string;
     html: string;
-    colStart?: number;
-    colEnd?: number;
+    colStart?: number | undefined;
+    colEnd?: number | undefined;
 }
 
 function parseLogsSection(lines: string[]): Callout[] {
@@ -188,11 +190,11 @@ export function pluginCallouts(): ExpressiveCodePlugin {
             }
 
             .line-callout {
-                padding: ${cssVar("callouts.pad")};
-                font-family: ${cssVar("callouts.font")};
-                font-size: ${cssVar("callouts.fontSz")};
+                padding: ${cssVar("callouts.padding")};
+                font-family: ${cssVar("callouts.fontFamily")};
+                font-size: ${cssVar("callouts.fontSize")};
                 line-height: 1.4;
-                color: ${cssVar("callouts.txt")};
+                color: ${cssVar("callouts.textColor")};
                 border-left-width: 3px;
                 border-left-style: solid;
 
@@ -202,38 +204,38 @@ export function pluginCallouts(): ExpressiveCodePlugin {
                     padding: 0.125rem 0.375rem;
                     font-family: "JetBrains Mono", monospace;
                     font-size: 0.75rem;
-                    background: rgba(0, 0, 0, 0.08);
+                    background: ${cssVar("callouts.codeBackground")};
                     border-radius: 3px;
                 }
             }
 
             .line-callout-error {
-                background: ${cssVar("callouts.errBg")};
-                border-left-color: ${cssVar("callouts.errBrd")};
-                &::before { content: ${cssVar("callouts.errIcon")}; }
+                background: ${cssVar("callouts.errorBackground")};
+                border-left-color: ${cssVar("callouts.errorBorder")};
+                &::before { content: ${cssVar("callouts.errorIcon")}; }
             }
 
             .line-callout-warn {
-                background: ${cssVar("callouts.warnBg")};
-                border-left-color: ${cssVar("callouts.warnBrd")};
+                background: ${cssVar("callouts.warnBackground")};
+                border-left-color: ${cssVar("callouts.warnBorder")};
                 &::before { content: ${cssVar("callouts.warnIcon")}; }
             }
 
             .line-callout-info {
-                background: ${cssVar("callouts.infoBg")};
-                border-left-color: ${cssVar("callouts.infoBrd")};
+                background: ${cssVar("callouts.infoBackground")};
+                border-left-color: ${cssVar("callouts.infoBorder")};
                 &::before { content: ${cssVar("callouts.infoIcon")}; }
             }
 
             .line-callout-ok {
-                background: ${cssVar("callouts.okBg")};
-                border-left-color: ${cssVar("callouts.okBrd")};
+                background: ${cssVar("callouts.okBackground")};
+                border-left-color: ${cssVar("callouts.okBorder")};
                 &::before { content: ${cssVar("callouts.okIcon")}; }
             }
 
             .line-callout-note {
-                background: ${cssVar("callouts.noteBg")};
-                border-left-color: ${cssVar("callouts.noteBrd")};
+                background: ${cssVar("callouts.noteBackground")};
+                border-left-color: ${cssVar("callouts.noteBorder")};
                 &::before { content: ${cssVar("callouts.noteIcon")}; }
             }
 
@@ -243,7 +245,7 @@ export function pluginCallouts(): ExpressiveCodePlugin {
                 text-underline-offset: 2px;
             }
 
-            .callout-underline-error { text-decoration-color: ${cssVar("callouts.errUnderline")}; }
+            .callout-underline-error { text-decoration-color: ${cssVar("callouts.errorUnderline")}; }
             .callout-underline-warn { text-decoration-color: ${cssVar("callouts.warnUnderline")}; }
         `,
         hooks: {

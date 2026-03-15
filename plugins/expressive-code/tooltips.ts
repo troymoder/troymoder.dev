@@ -11,35 +11,33 @@ declare module "astro-expressive-code" {
 }
 
 interface TooltipsStyleSettings {
-    underlineCol: string;
-    underlineColHov: string;
-    bg: string;
-    txt: string;
-    brd: string;
-    shd: string;
-    codeBg: string;
-    rad: string;
-    pad: string;
-    font: string;
-    fontSz: string;
-    maxWd: string;
+    underlineColor: string;
+    underlineColorHover: string;
+    background: string;
+    textColor: string;
+    borderColor: string;
+    shadowColor: string;
+    codeBackground: string;
+    borderRadius: string;
+    padding: string;
+    fontSize: string;
+    maxWidth: string;
 }
 
 export const tooltipsStyleSettings = new PluginStyleSettings({
     defaultValues: {
         tooltips: {
-            underlineCol: "color-mix(in srgb, currentColor 50%, transparent)",
-            underlineColHov: "currentColor",
-            bg: "#ffffff",
-            txt: "#27272a",
-            brd: "#e4e4e7",
-            shd: "rgba(0, 0, 0, 0.1)",
-            codeBg: "rgba(0, 0, 0, 0.05)",
-            rad: "6px",
-            pad: "0.75rem 1rem",
-            font: "system-ui, -apple-system, sans-serif",
-            fontSz: "0.875rem",
-            maxWd: "400px",
+            underlineColor: "color-mix(in srgb, currentColor 50%, transparent)",
+            underlineColorHover: "currentColor",
+            background: "#ffffff",
+            textColor: "#27272a",
+            borderColor: "#e4e4e7",
+            shadowColor: "rgba(0, 0, 0, 0.1)",
+            codeBackground: "rgba(0, 0, 0, 0.05)",
+            borderRadius: "6px",
+            padding: "0.75rem 1rem",
+            fontSize: "0.875rem",
+            maxWidth: "400px",
         },
     },
 });
@@ -158,11 +156,11 @@ export function pluginTooltips(): ExpressiveCodePlugin {
             .tooltip-trigger {
                 position: relative;
                 cursor: help;
-                border-bottom: 1px dashed ${cssVar("tooltips.underlineCol")};
+                border-bottom: 1px dashed ${cssVar("tooltips.underlineColor")};
 
                 &:hover, &.pinned {
                     border-bottom-style: solid;
-                    border-bottom-color: ${cssVar("tooltips.underlineColHov")};
+                    border-bottom-color: ${cssVar("tooltips.underlineColorHover")};
                 }
 
                 &:hover .tooltip-content {
@@ -176,18 +174,18 @@ export function pluginTooltips(): ExpressiveCodePlugin {
                 top: calc(100% + 8px);
                 left: 0;
                 z-index: 100;
-                max-width: ${cssVar("tooltips.maxWd")};
+                max-width: ${cssVar("tooltips.maxWidth")};
                 width: max-content;
-                padding: ${cssVar("tooltips.pad")};
-                font-family: ${cssVar("tooltips.font")};
-                font-size: ${cssVar("tooltips.fontSz")};
+                padding: ${cssVar("tooltips.padding")};
+                font-family: ${cssVar("codeFontFamily")};
+                font-size: ${cssVar("tooltips.fontSize")};
                 line-height: 1.5;
                 white-space: normal;
-                color: ${cssVar("tooltips.txt")};
-                background: ${cssVar("tooltips.bg")};
-                border: 1px solid ${cssVar("tooltips.brd")};
-                border-radius: ${cssVar("tooltips.rad")};
-                box-shadow: 0 4px 12px ${cssVar("tooltips.shd")};
+                color: ${cssVar("tooltips.textColor")};
+                background: ${cssVar("tooltips.background")};
+                border: 1px solid ${cssVar("tooltips.borderColor")};
+                border-radius: ${cssVar("tooltips.borderRadius")};
+                box-shadow: 0 4px 12px ${cssVar("tooltips.shadowColor")};
                 opacity: 0;
                 visibility: hidden;
                 transition: opacity 0.2s ease, visibility 0.2s ease;
@@ -199,9 +197,9 @@ export function pluginTooltips(): ExpressiveCodePlugin {
                     left: 12px;
                     width: 10px;
                     height: 10px;
-                    background: ${cssVar("tooltips.bg")};
-                    border-left: 1px solid ${cssVar("tooltips.brd")};
-                    border-top: 1px solid ${cssVar("tooltips.brd")};
+                    background: ${cssVar("tooltips.background")};
+                    border-left: 1px solid ${cssVar("tooltips.borderColor")};
+                    border-top: 1px solid ${cssVar("tooltips.borderColor")};
                     transform: rotate(45deg);
                 }
 
@@ -216,9 +214,9 @@ export function pluginTooltips(): ExpressiveCodePlugin {
 
                 code {
                     padding: 0.125rem 0.375rem;
-                    font-family: "JetBrains Mono", monospace;
+                    font-family: ${cssVar("codeFontFamily")};
                     font-size: 0.8125rem;
-                    background: ${cssVar("tooltips.codeBg")};
+                    background: ${cssVar("tooltips.codeBackground")};
                     border-radius: 3px;
                 }
             }

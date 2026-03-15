@@ -1,7 +1,31 @@
-import { AttachedPluginData, type ExpressiveCodePlugin } from "astro-expressive-code";
+import { AttachedPluginData, type ExpressiveCodePlugin, PluginStyleSettings } from "astro-expressive-code";
 import type { Element } from "hast";
 import { getSection, pluginBlockConfigData } from "./block-config.ts";
 import foldingClient from "./folding.client.js?raw";
+
+declare module "astro-expressive-code" {
+    export interface StyleSettings {
+        folding: FoldingStyleSettings;
+    }
+}
+
+interface FoldingStyleSettings {
+    ellipsisColor: string;
+    ellipsisBackground: string;
+    ellipsisColorHover: string;
+    ellipsisBackgroundHover: string;
+}
+
+export const foldingStyleSettings = new PluginStyleSettings({
+    defaultValues: {
+        folding: {
+            ellipsisColor: "#6b6b6b",
+            ellipsisBackground: "rgba(249, 200, 155, 0.3)",
+            ellipsisColorHover: "#232333",
+            ellipsisBackgroundHover: "rgba(249, 200, 155, 0.9)",
+        },
+    },
+});
 
 interface FoldRegion {
     start: number;
@@ -102,6 +126,7 @@ export const pluginFoldingData = new AttachedPluginData<PluginFoldingData>(
 export function pluginFolding(): ExpressiveCodePlugin {
     return {
         name: "folding",
+        styleSettings: foldingStyleSettings,
         baseStyles: ({ cssVar }) => `
             .ec-line[data-foldable] .gutter { position: relative; }
 
@@ -147,19 +172,22 @@ export function pluginFolding(): ExpressiveCodePlugin {
 
             .fold-ellipsis {
                 display: none;
-                color: #6b6b6b;
+                color: ${cssVar("folding.ellipsisColor")};
                 font-style: normal;
                 cursor: pointer;
                 user-select: none;
                 border: none;
-                background: #f9c89b4d;
+                background: ${cssVar("folding.ellipsisBackground")};
                 border-radius: 3px;
                 margin-left: 0.5em;
                 padding: 0 0.4em;
                 font: inherit;
                 transition: background 0.15s ease, color 0.15s ease;
 
-                &:hover { color: #232333; background: #f9c89be6; }
+                &:hover {
+                    color: ${cssVar("folding.ellipsisColorHover")};
+                    background: ${cssVar("folding.ellipsisBackgroundHover")};
+                }
             }
 
             .ec-line[data-collapsed] .fold-ellipsis { display: inline; }

@@ -1,6 +1,28 @@
-import { type ExpressiveCodePlugin } from "astro-expressive-code";
+import { type ExpressiveCodePlugin, PluginStyleSettings } from "astro-expressive-code";
 import anchorsClient from "./anchors.client.js?raw";
 import { getSection, pluginBlockConfigData } from "./block-config.ts";
+
+declare module "astro-expressive-code" {
+    export interface StyleSettings {
+        anchors: AnchorsStyleSettings;
+    }
+}
+
+interface AnchorsStyleSettings {
+    highlightBackground: string;
+    highlightBackgroundStart: string;
+    highlightBackgroundMid: string;
+}
+
+export const anchorsStyleSettings = new PluginStyleSettings({
+    defaultValues: {
+        anchors: {
+            highlightBackground: "rgba(255, 213, 0, 0.25)",
+            highlightBackgroundStart: "rgba(255, 213, 0, 0.3)",
+            highlightBackgroundMid: "rgba(255, 213, 0, 0.15)",
+        },
+    },
+});
 
 interface AnchorConfig {
     blockId?: string;
@@ -32,9 +54,10 @@ function parseAnchorSection(lines: string[]): AnchorConfig {
 export function pluginAnchors(): ExpressiveCodePlugin {
     return {
         name: "anchors",
-        baseStyles: `
+        styleSettings: anchorsStyleSettings,
+        baseStyles: ({ cssVar }) => `
             .ec-line[data-anchor-highlight="full"] {
-                background: rgba(255, 213, 0, 0.25);
+                background: ${cssVar("anchors.highlightBackground")};
                 animation: anchor-highlight-fade 3s ease-out forwards;
             }
 
@@ -46,14 +69,14 @@ export function pluginAnchors(): ExpressiveCodePlugin {
                 position: absolute;
                 top: 0;
                 bottom: 0;
-                background: rgba(255, 213, 0, 0.25);
+                background: ${cssVar("anchors.highlightBackground")};
                 animation: anchor-highlight-fade 3s ease-out forwards;
                 pointer-events: none;
             }
 
             @keyframes anchor-highlight-fade {
-                0% { background: rgba(255, 213, 0, 0.3); }
-                70% { background: rgba(255, 213, 0, 0.15); }
+                0% { background: ${cssVar("anchors.highlightBackgroundStart")}; }
+                70% { background: ${cssVar("anchors.highlightBackgroundMid")}; }
                 100% { background: transparent; }
             }
         `,

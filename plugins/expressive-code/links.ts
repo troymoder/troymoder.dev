@@ -9,15 +9,15 @@ declare module "astro-expressive-code" {
 }
 
 interface LinksStyleSettings {
-    underlineCol: string;
-    underlineColHov: string;
+    underlineColor: string;
+    underlineColorHover: string;
 }
 
 export const linksStyleSettings = new PluginStyleSettings({
     defaultValues: {
         links: {
-            underlineCol: "color-mix(in srgb, currentColor 40%, transparent)",
-            underlineColHov: "currentColor",
+            underlineColor: "color-mix(in srgb, currentColor 40%, transparent)",
+            underlineColorHover: "currentColor",
         },
     },
 });
@@ -133,13 +133,13 @@ export function pluginLinks(): ExpressiveCodePlugin {
             .code-link {
                 color: inherit;
                 text-decoration: none;
-                border-bottom: 1px dashed ${cssVar("links.underlineCol")};
+                border-bottom: 1px dashed ${cssVar("links.underlineColor")};
                 cursor: pointer;
                 transition: border-color 0.15s ease;
 
                 &:hover {
                     border-bottom-style: solid;
-                    border-bottom-color: ${cssVar("links.underlineColHov")};
+                    border-bottom-color: ${cssVar("links.underlineColorHover")};
                 }
             }
         `,
