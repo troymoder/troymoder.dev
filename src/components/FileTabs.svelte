@@ -5,20 +5,35 @@
     type Props = {
         files: string[];
         activeIndex?: number;
+        collapsed?: boolean;
         children: Snippet;
     };
 
-    const { files, activeIndex: initialActiveIndex = 0, children }: Props = $props();
+    const {
+        files,
+        activeIndex: initialActiveIndex = 0,
+        collapsed: initialCollapsed = false,
+        children,
+    }: Props = $props();
 
     let fileTabs: HTMLDivElement;
+
+    let activeCollapsed = $state<boolean | null>(null);
+    const isCollapsed = $derived(activeCollapsed ?? initialCollapsed);
     let activeIndex = $state<number | null>(null);
+    const currentIndex = $derived(activeIndex ?? initialActiveIndex);
 
     function handleTabClick(e: MouseEvent, index: number) {
+        if (isCollapsed) {
+            toggleCollapse();
+        }
         activeIndex = index;
         (e.target as HTMLElement)?.blur();
     }
 
-    const currentIndex = $derived(activeIndex ?? initialActiveIndex);
+    function toggleCollapse() {
+        activeCollapsed = !isCollapsed;
+    }
 
     onMount(() => {
         const diffBlocks = fileTabs.querySelectorAll<HTMLElement>(".diff-block");
@@ -48,13 +63,20 @@
     });
 </script>
 
-<div class="file-tabs" data-active-tab={currentIndex} bind:this={fileTabs}>
+<div
+    class="file-tabs"
+    data-active-tab={currentIndex}
+    class:collapsed={isCollapsed}
+    bind:this={fileTabs}>
     <div class="tabs-bar">
-        <button class="dropdown-trigger" type="button" aria-haspopup="listbox">
-            <span>{files[currentIndex]}</span>
-            <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <button
+            class="collapse-toggle"
+            type="button"
+            onclick={toggleCollapse}
+            aria-label={isCollapsed ? "Expand code" : "Collapse code"}>
+            <svg class="collapse-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path
-                    d="M3 4.5L6 7.5L9 4.5"
+                    d="M4.5 3L7.5 6L4.5 9"
                     stroke="currentColor"
                     stroke-width="1.5"
                     stroke-linecap="round"
@@ -62,17 +84,31 @@
                 />
             </svg>
         </button>
-        <div class="tabs-list">
-            {#each files as file, i (i)}
-                <button
-                    class="tab"
-                    class:active={currentIndex === i}
-                    data-tab-index={i}
-                    type="button"
-                    onclick={(e) => handleTabClick(e, i)}>
-                    {file}
-                </button>
-            {/each}
+        <div class="tabs-dropdown-wrapper">
+            <button class="dropdown-trigger" type="button" aria-haspopup="listbox">
+                <span>{files[currentIndex]}</span>
+                <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path
+                        d="M3 4.5L6 7.5L9 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
+                </svg>
+            </button>
+            <div class="tabs-list">
+                {#each files as file, i (i)}
+                    <button
+                        class="tab"
+                        class:active={currentIndex === i}
+                        data-tab-index={i}
+                        type="button"
+                        onclick={(e) => handleTabClick(e, i)}>
+                        {file}
+                    </button>
+                {/each}
+            </div>
         </div>
     </div>
     <div class="tabs-content">
@@ -89,10 +125,64 @@
       }
     }
 
+    .file-tabs.collapsed .tabs-content {
+      display: none;
+    }
+
+    .file-tabs.collapsed .tabs-bar {
+      margin-bottom: 0;
+    }
+
+    .file-tabs.collapsed .tab.active {
+      border-radius: 6px;
+      border-bottom: 1px solid var(--color-border, #e5e5e5);
+    }
+
     .tabs-bar {
       position: relative;
       margin-bottom: -1px;
       z-index: 2;
+      display: flex;
+      align-items: center;
+    }
+
+    .collapse-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      padding: 0;
+      margin-right: 0.25rem;
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      color: var(--color-text-muted, #6b6b6b);
+      cursor: pointer;
+      transition: color 0.15s ease, background 0.15s ease;
+
+      &:hover {
+        color: var(--color-text, #232333);
+        background: var(--color-background-code, #fef9f3);
+      }
+    }
+
+    .collapse-chevron {
+      transition: transform 0.15s ease;
+    }
+
+    .file-tabs:not(.collapsed) .collapse-chevron {
+      transform: rotate(90deg);
+    }
+
+    .tabs-dropdown-wrapper {
+      display: contents;
+
+      @media (max-width: 640px) {
+        display: block;
+        position: relative;
+        flex: 1;
+      }
     }
 
     .dropdown-trigger {
@@ -112,6 +202,11 @@
         border-bottom: none;
         border-radius: 6px 6px 0 0;
         cursor: pointer;
+
+        .file-tabs.collapsed & {
+          border-radius: 6px;
+          border-bottom: 1px solid var(--color-border, #e5e5e5);
+        }
       }
     }
 
@@ -119,7 +214,7 @@
       transition: transform 0.15s ease;
     }
 
-    .tabs-bar:focus-within .chevron {
+    .tabs-dropdown-wrapper:focus-within .chevron {
       transform: rotate(180deg);
     }
 
@@ -140,7 +235,7 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         padding: 0.25rem 0;
 
-        .tabs-bar:focus-within & {
+        .tabs-dropdown-wrapper:focus-within & {
           display: flex;
         }
       }
