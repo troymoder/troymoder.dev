@@ -31,7 +31,5 @@ export default defineEcConfig({
         codeFontFamily: "'JetBrains Mono', monospace, serif",
         codeFontSize: "1em",
         codeLineHeight: "1.4",
-        codePaddingBlock: "1em",
-        codePaddingInline: "1.5em",
     },
 });

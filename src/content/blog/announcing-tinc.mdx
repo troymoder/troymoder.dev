@@ -20,7 +20,7 @@ The industry standard to describe a REST API is [OpenAPI](https://www.openapis.o
 OpenAPI is a detailed machine readable specification for declaring endpoints
 and how they behave.
 
-Here is a simple service in rust using the [`axum`](https://docs.rs/axum) crate.
+Let's start with a simple service in Rust using the [`axum`](https://docs.rs/axum) crate.
 
 <FileTabs client:load files={["src/main.rs"]}>
 ```rs
@@ -57,8 +57,8 @@ async fn ping(
 ```
 </FileTabs>
 
-We have a single endpoint `/ping` where you can send a POST request with a JSON
-body consisting of the single field `message`, which must start with the prefix
+In this arbitrary example there is a single endpoint `/ping` where we can send a `POST`
+request with a JSON body containing one required field `message`, which must start with the prefix
 `hello:`.
 
 ```json
@@ -68,15 +68,16 @@ ok@1: Valid - has `message` field starting with `hello:`
 error@2[3:15]: Missing required field `message`
 error@3[14:19]: Message doesn't start with `hello:`
 error@4[1:3]: Empty object - missing `message` field
+error@5: XML is not valid JSON
 :::
 { "message": "hello:troy" }
 { "not-message": 123 }
 { "message": "troy" }
 { }
+<message>hello:troy</message>
 ```
 
-The following would be the corresponding OpenAPI spec
-for the given endpoint.
+To describe the above API we can use the following OpenAPI spec.
 
 <FileTabs client:load files={["openapi.json"]}>
 ```json
@@ -170,19 +171,30 @@ pattern@49: Regex pattern the string value must match
 ```
 </FileTabs>
 
-It may seem a bit overwhelming at first, but there are only a few things that are important.
+It may seem a bit overwhelming at first, but there are only a few things that are important
+for our example.
 
-1. [`paths`](#openapi-code-example:7/"paths"/) where you define all the endpoints you have.
-2. [`components`](#openapi-code-example:39/"components"/) where you define all the payload structures.
-3. [`pattern`](#openapi-code-example:49/"pattern"/) we add a requirement to the [`message`](#openapi-code-example:47-50) property
+1. [`paths`](#openapi-code-example:7/"paths"/) where we define the `/ping` endpoint.
+2. [`components`](#openapi-code-example:39/"components"/) where we define the `PingRequest` and `PingResponse` payload structures.
+3. [`pattern`](#openapi-code-example:49/"pattern"/) where we add our `hello:` requirement 
+to the [`message`](#openapi-code-example:47-50) field.
+
+Having an OpenAPI spec is very useful for communicating with other developers about the API.
+There are documentation generators like [Swagger UI](https://swagger.io/tools/swagger-ui/) or 
+[Spotlight Elements](https://elements-demo.stoplight.io/) that can convert the spec into a
+nice looking documentation website.
+
+You can also generate client-side libraries using tools like 
+[OpenAPI generator](https://github.com/OpenAPITools/openapi-generator) allowing
+many different languages to interact with the API.
+
+Its a lot of manual work to write an OpenAPI spec by hand, so many people prefer to go the route
+of having the spec generated for them.
 
 ## Code-first approach
 
-People don't usually write OpenAPI spec's directly as they are verbose and
-annoying to maintain.
-
-One approach is to write code and have a framework generate the OpenAPI spec for
-you. In rust a popular library for this is [`utoipa`](https://docs.rs/utoipa/latest/utoipa/).
+One such approach for spec generation is to layout your API in terms of the code you write.
+In rust a popular library for this is [`utoipa`](https://docs.rs/utoipa/latest/utoipa/).
 
 With `utoipa` you can write something like the following:
 
@@ -240,10 +252,10 @@ async fn ping(
 ```
 </FileTabs>
 
-Its called a code first approach as the **code** becomes the source of truth for
+This is called a "code first" approach as the **code** becomes the source of truth for
 the API documentation.
 
-You can access the generated spec using the following code.
+With `utoipa` we can access the generated spec with the following snippet.
 
 ```rs
 ::: links
@@ -253,22 +265,12 @@ let spec = ApiDoc::openapi();
 let spec_json = serde_json::to_string(&spec).unwrap();
 ```
 
-Validation here is disconnected from the schema. Even though we
-declare that [`#[schema(pattern = r"^hello:")]`](#rust-example-utoipa:11/#.*/)
-we still need to add a [check](#rust-example-utoipa:33-35) this inside our implementation method.
-
 ## Schema-first approach
 
-Another way to go about having an API is first declaring it using a schema and then
-generating the a mock for you to implement.
 
-The most popular schema is [Protobuf](https://protobuf.dev/) which is a language
-agnostic schema for defining structures and [gRPC](https://grpc.io/) which adds
-to that allowing you to define services and methods aswell.
+Here is our simple service as a gRPC API.
 
-Here is an example of our simple ping-pong service using Protobuf & gRPC.
-
-<FileTabs client:load files={["pb/ping.proto", "src/main.rs", "build.rs", "Cargo.toml"]}>
+<FileTabs client:load files={["pb/ping.proto", "src/main.rs"]}>
 ```protobuf
 ::: anchor
 proto-example
@@ -334,23 +336,6 @@ impl PingService for MyPingService {
     }
 }
 ```
-
-```rs
-fn main() {
-    tonic_prost_build::configure()
-        .compile_protos(["pb/ping.proto"], &["pb"])?
-        .unwrap();
-}
-```
-
-```toml
-[dependencies]
-tonic = { version = "0.14", features = ["prost"] }
-prost = "0.14"
-
-[build-dependencies]
-tonic-build = "0.14"
-```
 </FileTabs>
 
 ## Tinc
@@ -359,7 +344,7 @@ This is where [tinc](https://docs.rs/tinc) comes in. The above example is not RE
 its a gRPC API. To get a REST API and also an OpenAPI schema we need to "tinc-ify"
 our example.
 
-<FileTabs client:load files={["pb/ping.proto", "src/main.rs", "build.rs", "Cargo.toml"]}>
+<FileTabs client:load files={["pb/ping.proto", "src/main.rs"]}>
 
 ```protobuf
 ::: anchor
@@ -444,32 +429,4 @@ impl PingService for MyPingService {
 }
 ```
 
-```rs
-::: diff
-del: 2
-ins: 3
-:::
-fn main() {
-    tonic_prost_build::configure()
-    tinc_build::Config::prost()
-        .compile_protos(["pb/ping.proto"], &["pb"])?
-        .unwrap();
-}
-```
-
-```toml
-::: diff
-ins: 4-5, 9
-del: 8
-:::
-[dependencies]
-tonic = { version = "0.14", features = ["prost"] }
-prost = "0.14"
-tinc = { version = "0.2", features = ["prost"] }
-serde = "1.0"
-
-[build-dependencies]
-tonic-build = "0.14"
-tinc-build = { version = "0.2", features = ["prost"] }
-```
 </FileTabs>

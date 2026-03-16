@@ -135,7 +135,7 @@
 
     .file-tabs.collapsed .tab.active {
       border-radius: 6px;
-      border-bottom: 1px solid var(--color-border, #e5e5e5);
+      border-bottom: 1px solid var(--color-border, #fffcfa);
     }
 
     .tabs-bar {
@@ -144,6 +144,7 @@
       z-index: 2;
       display: flex;
       align-items: center;
+      margin-left: -1.75em;
     }
 
     .collapse-toggle {

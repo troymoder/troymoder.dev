@@ -21,7 +21,6 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
                 left: 0;
                 z-index: 1;
                 background: inherit;
-                border-inline-end: ${cssVar("gutterBorderWidth")} solid ${cssVar("gutterBorderColor")};
                 &::before {
                     content: "";
                     position: absolute;
@@ -57,13 +56,7 @@ export function pluginLineNumbers(): ExpressiveCodePlugin {
             }
 
             pre {
-                margin-left: min(
-                    -0.5em,
-                    max(
-                        calc(-1 * (100vw - var(--content-max-width)) / 2 + 0.5em),
-                        calc(-1 * (var(--lnWidth) + 4ch))
-                    )
-                );
+                line-height: ${cssVar("codeLineHeight")};
             }
         `,
         hooks: {

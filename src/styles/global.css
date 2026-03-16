@@ -120,7 +120,7 @@ code {
 }
 
 .expressive-code {
-  margin-left: calc(-1.5em - 1px);
+  margin-left: -2em;
 }
 
 .content {

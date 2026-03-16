@@ -114,7 +114,7 @@ export function pluginDiff(): ExpressiveCodePlugin {
                     .code {
                         &::before {
                             position: absolute;
-                            left: calc(0.5ch + 1px);
+                            left: 0;
                             font-family: monospace;
                             text-align: center;
                         }
