@@ -5,7 +5,14 @@
         if (colonIdx === -1) return null;
 
         const blockId = decoded.slice(0, colonIdx);
-        const range = decoded.slice(colonIdx + 1);
+        let range = decoded.slice(colonIdx + 1);
+
+        let diffMode = null;
+        const diffSuffix = range.match(/!(\w+)$/);
+        if (diffSuffix) {
+            diffMode = diffSuffix[1];
+            range = range.slice(0, -diffSuffix[0].length);
+        }
 
         const regexMatch = range.match(/^(\d+)\/(.+)\/$/);
         if (regexMatch) {
@@ -15,6 +22,7 @@
                 startLine: line,
                 endLine: line,
                 pattern: regexMatch[2],
+                diffMode,
             };
         }
 
@@ -25,13 +33,14 @@
                 startLine: parseInt(lineRangeMatch[1], 10),
                 endLine: parseInt(lineRangeMatch[2], 10),
                 pattern: null,
+                diffMode,
             };
         }
 
         const singleLineMatch = range.match(/^(\d+)$/);
         if (singleLineMatch) {
             const line = parseInt(singleLineMatch[1], 10);
-            return { blockId, startLine: line, endLine: line, pattern: null };
+            return { blockId, startLine: line, endLine: line, pattern: null, diffMode };
         }
 
         return null;
@@ -170,12 +179,22 @@
         button.click();
     }
 
+    function setDiffMode(block, diffMode) {
+        if (!diffMode) return;
+        const diffBlock = block.querySelector(".diff-block");
+        if (!diffBlock) return;
+        if (diffMode === "diff" || diffMode === "plain") {
+            diffBlock.dataset.diffMode = diffMode;
+        }
+    }
+
     function highlightRange(parsed) {
-        const { blockId, startLine, endLine, pattern } = parsed;
+        const { blockId, startLine, endLine, pattern, diffMode } = parsed;
         const block = document.getElementById(blockId);
         if (!block) return false;
 
         switchToTabIfNeeded(block);
+        setDiffMode(block, diffMode);
         expandFoldedRegions(block, startLine, endLine);
 
         window.requestAnimationFrame(() => {

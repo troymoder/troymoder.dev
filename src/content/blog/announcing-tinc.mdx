@@ -366,7 +366,6 @@ tinc-proto-diff
 ::: diff
 ins: 3, 9-11, 20-22
 del: 8, 19
-mode: plain
 ::: links
 PingRequest@20 -> :7/PingRequest/
 PingResponse@20 -> :14/PingResponse/
@@ -402,7 +401,6 @@ tinc-rust-diff
 ::: diff
 ins: 4
 del: 3,18-23
-mode: plain
 ::: collapse
 18
 ::: links
@@ -461,7 +459,7 @@ let spec_json = serde_json::to_string(&spec).unwrap();
 A few things to note here.
 
 1. You don't need to use a gRPC server, you can use tinc as a way to define your REST API in protobuf.
-2. We dont need to do any [validation logic](#tinc-rust-diff:18-22) inside our implementation method as
+2. We dont need to do any [validation logic](#tinc-rust-diff:18-22!diff) inside our implementation method as
 tinc validates all requests (both REST and gRPC) using a fully customizable and extendable expression language.
 
 For completeness here is also the code for setting up a http listener for the above example
