@@ -42,6 +42,7 @@ export const diffStyleSettings = new PluginStyleSettings({
 interface DiffConfig {
     ins: Set<number>;
     del: Set<number>;
+    defaultMode: "diff" | "plain";
 }
 
 function parseLineRanges(value: string): Set<number> {
@@ -68,7 +69,7 @@ function parseLineRanges(value: string): Set<number> {
 }
 
 export function parseDiffSection(lines: string[]): DiffConfig {
-    const config: DiffConfig = { ins: new Set(), del: new Set() };
+    const config: DiffConfig = { ins: new Set(), del: new Set(), defaultMode: "diff" };
 
     for (const line of lines) {
         const trimmed = line.trim();
@@ -76,6 +77,8 @@ export function parseDiffSection(lines: string[]): DiffConfig {
             config.ins = parseLineRanges(trimmed.slice(4));
         } else if (trimmed.startsWith("del:")) {
             config.del = parseLineRanges(trimmed.slice(4));
+        } else if (trimmed.startsWith("mode:")) {
+            config.defaultMode = trimmed.slice(5).trim() as "diff" | "plain";
         }
     }
 
@@ -230,7 +233,7 @@ export function pluginDiff(): ExpressiveCodePlugin {
                     tagName: "div",
                     properties: {
                         className: ["diff-block"],
-                        "data-diff-mode": "diff",
+                        "data-diff-mode": config.defaultMode,
                     },
                     children: [toggleWrapper, ...figureAst.children],
                 };

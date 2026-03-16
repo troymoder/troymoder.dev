@@ -188,15 +188,13 @@ You can also generate client-side libraries using tools like
 [OpenAPI generator](https://github.com/OpenAPITools/openapi-generator) allowing
 many different languages to interact with the API.
 
-Its a lot of manual work to write an OpenAPI spec by hand, so many people prefer to go the route
-of having the spec generated for them.
-
 ## Code-first approach
 
-One such approach for spec generation is to layout your API in terms of the code you write.
-In rust a popular library for this is [`utoipa`](https://docs.rs/utoipa/latest/utoipa/).
+Writing OpenAPI specs by hand is hard. An alternative approach is to layout your API
+in terms of code and then have a library generate the spec for you.
 
-With `utoipa` you can write something like the following:
+In rust a popular library for this is [`utoipa`](https://docs.rs/utoipa/latest/utoipa/)
+which allows us to write something like the following:
 
 <FileTabs client:load files={["src/main.rs"]}>
 ```rs
@@ -252,10 +250,9 @@ async fn ping(
 ```
 </FileTabs>
 
-This is called a "code first" approach as the **code** becomes the source of truth for
-the API documentation.
+This is called a "code first" approach as the **code** becomes the source of truth for the API.
 
-With `utoipa` we can access the generated spec with the following snippet.
+With `utoipa` we can access the generated spec with the following:
 
 ```rs
 ::: links
@@ -267,6 +264,15 @@ let spec_json = serde_json::to_string(&spec).unwrap();
 
 ## Schema-first approach
 
+The opposite of the code-first approach is the schema-first approach. 
+Where you first define your API in a schema language, and then have a library generate mock
+the code for you to implement.
+
+While you can use OpenAPI as the schema language, the most popular schema language using this
+design pattern is protocol buffers, more commonly known as [`protobuf`](https://protobuf.dev/).
+
+[gRPC](https://grpc.io/) adds ontop of protobuf to provide a full RPC system allowing you to
+define services and methods aswell.
 
 Here is our simple service as a gRPC API.
 
@@ -338,11 +344,19 @@ impl PingService for MyPingService {
 ```
 </FileTabs>
 
+The issue however is this is not REST, making it harder for clients to interact with the API.
+
+To use a gRPC API you need to use the schema definitions to generate client code. This adds build
+complexity to clients and also requires you provide client side code or schema definitions to the client.
+
+In truth these aren't major blockers to adopting gRPC, but it does add some complexity.
+
 ## Tinc
 
-This is where [tinc](https://docs.rs/tinc) comes in. The above example is not REST,
-its a gRPC API. To get a REST API and also an OpenAPI schema we need to "tinc-ify"
-our example.
+This is where [tinc](https://docs.rs/tinc) comes in. Tinc allows you to take convert a gRPC API
+into a REST API, generating the OpenAPI schema for you.
+
+The following is an example of how to "tinc-ify" our example gRPC service.
 
 <FileTabs client:load files={["pb/ping.proto", "src/main.rs"]}>
 
@@ -352,6 +366,7 @@ tinc-proto-diff
 ::: diff
 ins: 3, 9-11, 20-22
 del: 8, 19
+mode: plain
 ::: links
 PingRequest@20 -> :7/PingRequest/
 PingResponse@20 -> :14/PingResponse/
@@ -387,6 +402,7 @@ tinc-rust-diff
 ::: diff
 ins: 4
 del: 3,18-23
+mode: plain
 ::: collapse
 18
 ::: links
@@ -429,4 +445,48 @@ impl PingService for MyPingService {
 }
 ```
 
+</FileTabs>
+
+Accessing the OpenAPI spec can be done via the following code.
+
+```rs
+::: links
+MyPingService@1 -> #tinc-rust-diff:8/MyPingService/
+:::
+let svc = PingServiceTinc::new(MyPingService {});
+let spec = svc.openapi();
+let spec_json = serde_json::to_string(&spec).unwrap();
+```
+
+A few things to note here.
+
+1. You don't need to use a gRPC server, you can use tinc as a way to define your REST API in protobuf.
+2. We dont need to do any [validation logic](#tinc-rust-diff:18-22) inside our implementation method as
+tinc validates all requests (both REST and gRPC) using a fully customizable and extendable expression language.
+
+For completeness here is also the code for setting up a http listener for the above example
+
+<FileTabs client:load files={["src/main.rs", "build.rs"]}>
+```rs
+::: links
+MyPingService@2 -> #tinc-rust-diff:8/MyPingService/
+:::
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let svc = PingServiceTinc::new(MyPingService {});
+    let router: axum::Router = svc.into_router();
+    let listener = TcpListener::bind("0.0.0.0:3000").await?;
+    axum::serve(listener, router).await?;
+}
+```
+
+```rs
+::: links
+ping.proto@3 -> #tinc-proto-diff:0
+:::
+fn main() {
+    tinc_build::Config::prost()
+        .compile_protos(["pb/ping.proto"], &["pb"])?
+        .unwrap();
+}
+```
 </FileTabs>

@@ -160,8 +160,6 @@
         const fileTabs = tabsContent.closest(".file-tabs");
         if (!fileTabs) return;
 
-        console.log(fileTabs);
-
         const codeBlocks = tabsContent.querySelectorAll(".expressive-code");
         const index = Array.from(codeBlocks).indexOf(block.closest(".expressive-code"));
         if (index === -1) return;
@@ -180,30 +178,30 @@
         switchToTabIfNeeded(block);
         expandFoldedRegions(block, startLine, endLine);
 
-        for (let i = startLine; i <= endLine; i++) {
-            const line = block.querySelector(`.ec-line[data-line-num="${i - 1}"]`);
-            if (!line) continue;
+        window.requestAnimationFrame(() => {
+            for (let i = startLine; i <= endLine; i++) {
+                const line = block.querySelector(`.ec-line[data-line-num="${i - 1}"]`);
+                if (!line) continue;
 
-            const codeDiv = line.querySelector(".code");
-            if (!codeDiv) continue;
+                const codeDiv = line.querySelector(".code");
+                if (!codeDiv) continue;
 
-            if (pattern) {
-                const match = findTextMatch(codeDiv, pattern);
-                if (match) {
-                    line.setAttribute("data-anchor-highlight", "partial");
-                    createOverlay(codeDiv, match.startIdx, match.endIdx);
+                if (pattern) {
+                    const match = findTextMatch(codeDiv, pattern);
+                    if (match) {
+                        line.setAttribute("data-anchor-highlight", "partial");
+                        createOverlay(codeDiv, match.startIdx, match.endIdx);
+                    }
+                } else {
+                    line.setAttribute("data-anchor-highlight", "full");
                 }
-            } else {
-                line.setAttribute("data-anchor-highlight", "full");
             }
-        }
 
-        const firstLine = block.querySelector(`.ec-line[data-line-num="${startLine - 1}"]`);
-        if (firstLine) {
-            firstLine.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        }
-
-        return true;
+            const target = startLine > 0 ? block.querySelector(`.ec-line[data-line-num="${startLine - 1}"]`) : block;
+            if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        });
     }
 
     function handleLinkClick(e) {
