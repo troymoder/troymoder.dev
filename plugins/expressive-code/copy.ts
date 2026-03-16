@@ -50,7 +50,7 @@ export function pluginCopy(): ExpressiveCodePlugin {
                 position: absolute;
                 top: 0.5rem;
                 right: 0.5rem;
-                z-index: 10;
+                z-index: 1;
                 opacity: 0;
                 transition: opacity 0.15s ease;
             }

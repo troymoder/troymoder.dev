@@ -12,33 +12,13 @@
 
     let fileTabs: HTMLDivElement;
     let activeIndex = $state<number | null>(null);
-    let dropdownOpen = $state(false);
 
-    function selectTab(index: number) {
+    function handleTabClick(e: MouseEvent, index: number) {
         activeIndex = index;
-        dropdownOpen = false;
+        (e.target as HTMLElement)?.blur();
     }
 
     const currentIndex = $derived(activeIndex ?? initialActiveIndex);
-
-    function toggleDropdown() {
-        dropdownOpen = !dropdownOpen;
-    }
-
-    function handleKeydown(e: KeyboardEvent) {
-        if (!dropdownOpen) return;
-        if (e.key === "Escape") {
-            dropdownOpen = false;
-        } else if (e.key === "ArrowDown") {
-            e.preventDefault();
-            activeIndex = (currentIndex + 1) % files.length;
-        } else if (e.key === "ArrowUp") {
-            e.preventDefault();
-            activeIndex = (currentIndex - 1 + files.length) % files.length;
-        } else if (e.key === "Enter") {
-            dropdownOpen = false;
-        }
-    }
 
     onMount(() => {
         const diffBlocks = fileTabs.querySelectorAll<HTMLElement>(".diff-block");
@@ -69,14 +49,8 @@
 </script>
 
 <div class="file-tabs" data-active-tab={currentIndex} bind:this={fileTabs}>
-    <div class="tabs-bar" class:dropdown-open={dropdownOpen}>
-        <button
-            class="dropdown-trigger"
-            type="button"
-            onclick={toggleDropdown}
-            onkeydown={handleKeydown}
-            aria-expanded={dropdownOpen}
-            aria-haspopup="listbox">
+    <div class="tabs-bar">
+        <button class="dropdown-trigger" type="button" aria-haspopup="listbox">
             <span>{files[currentIndex]}</span>
             <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path
@@ -95,7 +69,7 @@
                     class:active={currentIndex === i}
                     data-tab-index={i}
                     type="button"
-                    onclick={() => selectTab(i)}>
+                    onclick={(e) => handleTabClick(e, i)}>
                     {file}
                 </button>
             {/each}
@@ -117,9 +91,8 @@
 
     .tabs-bar {
       position: relative;
-      border-bottom: 1px solid var(--color-border, #e5e5e5);
       margin-bottom: -1px;
-      z-index: 1;
+      z-index: 2;
     }
 
     .dropdown-trigger {
@@ -146,7 +119,7 @@
       transition: transform 0.15s ease;
     }
 
-    .dropdown-open .chevron {
+    .tabs-bar:focus-within .chevron {
       transform: rotate(180deg);
     }
 
@@ -166,9 +139,8 @@
         border-radius: 6px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         padding: 0.25rem 0;
-        z-index: 100;
 
-        .dropdown-open & {
+        .tabs-bar:focus-within & {
           display: flex;
         }
       }
