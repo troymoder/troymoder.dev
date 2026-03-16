@@ -1,11 +1,8 @@
 (() => {
     function handleToggleClick(e) {
-        const btn = e.currentTarget;
-        const mode = btn.dataset.mode;
-        const diffBlock = btn.closest(".diff-block");
-        if (!diffBlock || !mode) return;
-
-        diffBlock.dataset.diffMode = mode;
+        const diffBlock = e.currentTarget.closest(".diff-block");
+        if (!diffBlock) return;
+        diffBlock.dataset.diffMode = diffBlock.dataset.diffMode === "diff" ? "plain" : "diff";
     }
 
     function init() {

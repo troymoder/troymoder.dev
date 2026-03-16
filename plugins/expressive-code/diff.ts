@@ -129,12 +129,6 @@ export function pluginDiff(): ExpressiveCodePlugin {
                 display: none;
             }
 
-            .diff-block[data-diff-mode="diff"] .diff-toggle-btn[data-mode="diff"],
-            .diff-block[data-diff-mode="plain"] .diff-toggle-btn[data-mode="plain"] {
-                color: ${cssVar("diff.toggleActiveColor")};
-                border-bottom-color: ${cssVar("diff.toggleActiveColor")};
-            }
-
             .diff-block {
                 flex-grow: 1;
             }
@@ -142,7 +136,6 @@ export function pluginDiff(): ExpressiveCodePlugin {
             .diff-toggle-wrapper {
                 display: inline-flex;
                 padding: 1em;
-                gap: 0.75rem;
                 font-size: 0.7rem;
                 margin-bottom: 0.25rem;
                 position: sticky;
@@ -152,18 +145,26 @@ export function pluginDiff(): ExpressiveCodePlugin {
             .diff-toggle-btn {
                 font-size: inherit;
                 font-family: inherit;
-                border: none;
+                border: 1px solid ${cssVar("diff.toggleColor")};
+                border-radius: 4px;
                 background: none;
                 color: ${cssVar("diff.toggleColor")};
                 cursor: pointer;
-                transition: color 0.15s ease;
-                text-decoration: none;
-                border-bottom: 1px solid transparent;
-                padding-bottom: 1px;
+                transition: all 0.15s ease;
+                padding: 0.25em 0.5em;
+
+                &::before {
+                    content: "Show diff";
+                }
 
                 &:hover {
                     color: ${cssVar("diff.toggleActiveColor")};
+                    border-color: ${cssVar("diff.toggleActiveColor")};
                 }
+            }
+
+            .diff-block[data-diff-mode="diff"] .diff-toggle-btn::before {
+                content: "Hide diff";
             }
         `,
         hooks: {
@@ -197,33 +198,21 @@ export function pluginDiff(): ExpressiveCodePlugin {
                 const config = parseDiffSection(diffLines);
                 if (config.del.size === 0) return;
 
-                const diffBtn: Element = {
+                const toggleBtn: Element = {
                     type: "element",
                     tagName: "button",
                     properties: {
                         className: ["diff-toggle-btn"],
                         type: "button",
-                        "data-mode": "diff",
                     },
-                    children: [{ type: "text", value: "Diff" }],
-                };
-
-                const outputBtn: Element = {
-                    type: "element",
-                    tagName: "button",
-                    properties: {
-                        className: ["diff-toggle-btn"],
-                        type: "button",
-                        "data-mode": "plain",
-                    },
-                    children: [{ type: "text", value: "Plain" }],
+                    children: [],
                 };
 
                 const toggleWrapper: Element = {
                     type: "element",
                     tagName: "div",
                     properties: { className: ["diff-toggle-wrapper"] },
-                    children: [diffBtn, outputBtn],
+                    children: [toggleBtn],
                 };
 
                 const figureAst = renderData.blockAst;
