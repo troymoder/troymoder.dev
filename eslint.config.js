@@ -19,6 +19,14 @@ export default defineConfig([
         },
     },
     {
+        rules: {
+            "@typescript-eslint/no-unused-vars": [
+                "error",
+                { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+            ],
+        },
+    },
+    {
         files: ["**/*.svelte"],
         languageOptions: {
             parserOptions: {

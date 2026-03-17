@@ -26,10 +26,10 @@
 </script>
 
 <ul class="post-list">
-    {#each posts as post (post.slug)}
+    {#each posts as post (post.id)}
         <li>
             <div class="post-header">
-                <a href={`/blog/${post.slug}`} class="post-title no-underline">{post.data.title}</a>
+                <a href={`/blog/${post.id}`} class="post-title no-underline">{post.data.title}</a>
                 {#if post.data.minutesRead}
                     <span class="reading-time">// {post.data.minutesRead}</span>
                 {/if}
@@ -56,7 +56,7 @@
                 <p class="post-summary">{post.data.description}</p>
             {/if}
             {#if showReadMore}
-                <a href={`/blog/${post.slug}`} class="read-more no-underline">Read more ⤴</a>
+                <a href={`/blog/${post.id}`} class="read-more no-underline">Read more ⤴</a>
             {/if}
         </li>
     {/each}

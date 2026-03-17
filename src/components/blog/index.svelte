@@ -92,7 +92,7 @@
     });
 
     function matchesSearch(post: Post) {
-        const postUrl = `/blog/${post.slug}/`;
+        const postUrl = `/blog/${post.id}/`;
         if (!searchQuery.trim()) return true;
         if (!pagefind) {
             return post.data.title.toLowerCase().includes(searchQuery.toLowerCase());

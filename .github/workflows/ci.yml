@@ -70,6 +70,46 @@ jobs:
     permissions: *read-permissions
     secrets: inherit
 
+  preview:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: Preview
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    environment:
+      name: surge-preview
+      url: ${{ steps.deploy.outputs.preview-url }}
+    outputs:
+      preview-url: ${{ steps.deploy.outputs.preview-url }}
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: website-build
+
+      - name: Extract artifact
+        run: |
+          set -eo pipefail
+          tar -xzf website.tar.gz
+
+      - name: Install Surge
+        run: npm install --global surge
+
+      - name: Deploy to Surge
+        id: deploy
+        run: |
+          surge ./dist --preview --domain ${{ vars.SURGE_DOMAIN }} --token ${{ secrets.SURGE_TOKEN }} | tee output.txt
+          PREVIEW_DOMAIN=$(grep "Live preview" output.txt | grep -oE '[0-9]+-[^[:space:]]+\.surge\.sh')
+          echo "preview-url=https://$PREVIEW_DOMAIN" >> "$GITHUB_OUTPUT"
+
+      - uses: marocchino/sticky-pull-request-comment@v3
+        name: Sticky pull request comment
+        with:
+          message: |
+            Release ${{ github.sha }} to <${{ steps.deploy.outputs.preview-url }}>
+
   status:
     name: Status
     runs-on: ubuntu-latest

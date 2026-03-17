@@ -1,0 +1,372 @@
+---
+title: Announcing Tinc
+date: 2026-03-12
+description: A gRPC to REST transcoding library for Rust
+tags: ["crate", "grpc", "api", "rust", "openapi"]
+---
+
+import FileTabs from "@components/FileTabs.svelte";
+
+Designing high quality APIs is hard, and it's often just as hard to accurately
+document them. [tinc](https://docs.rs/tinc) is a library designed to help with
+API design supporting both gRPC and REST APIs, with minimal boilerplate and code
+duplication.
+
+## Introduction
+
+Here's the premise, we have a single endpoint on our server `/ping` which accepts a `POST` request where the body is a JSON object.
+This object must contain a `message` field which is a string and starts with the prefix `hello:`.  The server will respond with a 
+JSON object containing a `response` field which is a string. 
+
+Here's how we could implement this in Rust using the [`axum`](https://docs.rs/axum) web framework.
+
+<FileTabs client:load files={["src/main.rs"]}>
+```rs
+::: anchor
+rust-first-example
+::: links
+PingRequest@13,14 -> :2/PingRequest/
+PingResponse@14,19 -> :7/PingResponse/
+message@15,20 -> :3/message/
+response@20 -> :8/response/
+:::
+#[derive(Deserialize)]
+struct PingRequest {
+    message: String,
+}
+
+#[derive(Serialize)]
+struct PingResponse {
+    response: String,
+}
+
+// POST /ping
+async fn ping(
+  Json(req): Json<PingRequest>,
+) -> Result<Json<PingResponse>, StatusCode> {
+    if !req.message.starts_with("hello:") {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    Ok(Json(PingResponse {
+        response: format!("Pong: {}", req.message),
+    }))
+}
+```
+</FileTabs>
+
+## OpenAPI
+
+[OpenAPI](https://www.openapis.org/) is a specification for describing REST APIs.
+
+An OpenAPI schema is either a JSON or YAML document that contains documentation, metadata,
+payload structures, and other information about the API and its endpoints.
+
+Here's the above API described as a JSON document.
+
+<FileTabs client:load files={["openapi.json"]}>
+```json
+::: anchor
+openapi-code-example
+::: collapse
+11
+21
+41
+53
+::: hover
+info@3: Metadata about the API - title, version, description, contact info
+paths@7: Defines all API endpoints - maps URL paths to their operations
+post@9: HTTP method for this endpoint - POST, GET, PUT, DELETE, etc.
+requestBody@11: Describes the expected request payload
+$ref@16: JSON Reference - points to a reusable schema definition
+responses@21: Maps HTTP status codes to their response descriptions
+components@39: Reusable definitions for schemas, parameters, and responses
+schemas@40: Object type definitions that can be referenced via `$ref`
+pattern@49: Regex pattern the string value must match
+::: links
+#/components/schemas/PingRequest: #openapi-code-example:41/"PingRequest"/
+#/components/schemas/PingResponse: #openapi-code-example:53/"PingResponse"/
+:::
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Ping API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/ping": {
+            "post": {
+                "summary": "Post a ping message",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PingRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Message must start with hello"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "PingRequest": {
+                "type": "object",
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "pattern": "^hello:"
+                    }
+                }
+            },
+            "PingResponse": {
+                "type": "object",
+                "res alsquired": [
+                    "response"
+                ],
+                "properties": {
+                    "response": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+</FileTabs>
+
+It may seem a bit overwhelming at first, but there are only a few things that are important
+for our example.
+
+1. [`paths`](#openapi-code-example:7/"paths"/) where we define the `/ping` endpoint.
+2. [`components`](#openapi-code-example:39/"components"/) where we define the `PingRequest` and `PingResponse` payload structures.
+3. [`pattern`](#openapi-code-example:49/"pattern"/) where we add our `hello:` requirement 
+to the [`message`](#openapi-code-example:47-50) field.
+
+Having a well defined OpenAPI document is very useful for communicating with other developers about the API.
+There are documentation generators like [Swagger UI](https://swagger.io/tools/swagger-ui/) or 
+[Spotlight Elements](https://elements-demo.stoplight.io/) that can convert the spec into a
+nice looking documentation [website](https://elements-demo.stoplight.io/?spec=https://haste.potat.app/raw/60a0).
+
+You can also generate client-side libraries using tools like
+[OpenAPI generator](https://github.com/OpenAPITools/openapi-generator), allowing for
+consumers of the API to interact with it with bindings in their preferred language.
+
+## Code-first approach
+
+Its often too annoying to maintain both an OpenAPI document aswell as the code to implement it.
+
+One way to avoid maintaining both is to describe your API in terms of code and have the framework 
+generate the OpenAPI document for you.
+
+In Rust a popular library for this is [`utoipa`](https://docs.rs/utoipa/latest/utoipa/)
+which allows us to annotate our structs and functions to describe the API.
+
+<FileTabs client:load files={["src/main.rs"]}>
+```rs
+::: anchor
+rust-example-utoipa
+::: links
+ping@3 -> :30/ping/
+PingRequest@4,24,31 -> :10/PingRequest/
+PingResponse@4,26,32,37 -> :16/PingResponse/
+message@33,38 -> :12/message/
+response@38 -> :17/response/
+:::
+#[derive(OpenApi)]
+#[openapi(
+    paths(ping),
+    components(schemas(PingRequest, PingResponse)),
+    info(title = "Ping API", version = "1.0.0")
+)]
+struct ApiDoc;
+
+#[derive(Deserialize, ToSchema)]
+struct PingRequest {
+    #[schema(pattern = r"^hello:")]
+    message: String,
+}
+
+#[derive(Serialize, ToSchema)]
+struct PingResponse {
+    response: String,
+}
+
+#[utoipa::path(
+    post,
+    path = "/ping",
+    summary = "Post a ping message",
+    request_body = PingRequest,
+    responses(
+        (status = 200, description = "Successful response", body = PingResponse),
+        (status = 400, description = "Message must start with `hello:`")
+    )
+)]
+async fn ping(
+  Json(req): Json<PingRequest>,
+) -> Result<Json<PingResponse>, StatusCode> {
+    if !req.message.starts_with("hello:") {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    Ok(Json(PingResponse {
+        response: format!("Pong: {}", req.message),
+    }))
+}
+```
+</FileTabs>
+
+This is called a "code first" approach as the **code** becomes the source of truth for the API.
+
+With `utoipa` we can access the generated OpenAPI document with the following:
+
+```rs
+::: links
+ApiDoc@1 -> #rust-example-utoipa:7/ApiDoc/
+:::
+let spec = ApiDoc::openapi();
+let spec_json = serde_json::to_string(&spec).unwrap();
+```
+
+## Schema-first approach
+
+The alternative to a code-first approach is a schema-first approach. By defining your API
+in a schema you can then generate mock code to implement the API.
+
+This is the approach taken by tinc. However instead of OpenAPI being the source of truth,
+we use [protobuf](https://protobuf.dev/) and [gRPC](https://grpc.io/) to define the API.
+
+Protobuf is a language-neutral, platform-neutral, extensible mechanism for serializing structured data.
+gRPC extends on this by providing a way to define RPC services using protobuf.
+
+Tinc takes that one step further by providing a way to define REST endpoints for gRPC methods. As well as
+allowing you to specify custom validation logic for the REST and gRPC endpoints.
+
+Here's the same API except described using tinc.
+
+<FileTabs client:load files={["pb/ping.proto", "src/main.rs"]}>
+
+```protobuf
+::: anchor
+tinc-proto-example
+::: links
+PingRequest@20 -> :7/PingRequest/
+PingResponse@20 -> :14/PingResponse/
+:::
+syntax = "proto3";
+
+import "tinc/annotations.proto";
+
+package ping;
+
+message PingRequest {
+    string message = 1 [(tinc.field).constraint.string = {
+        match: "^hello:"
+    }];
+}
+
+message PingResponse {
+    string response = 1;
+}
+
+service PingService {
+    rpc Ping(PingRequest) returns PingResponse {
+        option (tinc.method).endpoint = {post: "/ping"};
+    };
+}
+```
+
+```rs
+::: anchor
+tinc-rust-example
+::: links
+ping@3 -> #tinc-proto-example:5/ping/
+MyPingService@10 -> :7/MyPingService/
+PingService@10 -> #tinc-proto-example:17/PingService/
+ping@11 -> #tinc-proto-example:18/\bPing\b/
+PingRequest@13 -> #tinc-proto-example:7/PingRequest/
+PingResponse@14,17 -> #tinc-proto-example:13/PingResponse/
+message@18 -> #tinc-proto-example:8/message/
+response@18 -> #tinc-proto-example:14/response/
+:::
+pub mod pb {
+    // definitions are generated at compile time
+    tinc::include_proto!("ping");
+}
+
+#[derive(Debug, Default)]
+pub struct MyPingService {}
+
+#[tonic::async_trait]
+impl PingService for MyPingService {
+    async fn ping(
+        &self,
+        request: Request<PingRequest>,
+    ) -> Result<Response<PingResponse>, Status> {
+        let req = request.into_inner();
+
+        Ok(Response::new(PingResponse {
+            response: format!("Pong: {}", req.message),
+        }))
+    }
+}
+```
+
+</FileTabs>
+
+Accessing the OpenAPI spec can be done via the following code.
+
+```rs
+::: links
+MyPingService@1 -> #tinc-rust-example:7/MyPingService/
+:::
+let svc = PingServiceTinc::new(MyPingService {});
+let spec = svc.openapi();
+let spec_json = serde_json::to_string(&spec).unwrap();
+```
+
+Here are some of the choices made when creating tinc.
+
+- **Schema vs code**: Tinc goes for a schema-first approach because the developer can easily 
+ensure that all routes conform to the same schema and have consistent validation rules.
+
+- **Protobuf vs OpenAPI**: Protobuf often has better generators than OpenAPI. 
+Protobuf also gives the ability to use gRPC clients aswell as REST clients.
+
+- **Validation logic is enforced at the request level**: 
+ The developer can define validation logic directly in the protobuf file and tinc enforces it for every HTTP and gRPC request.
+
+- **No proxy layer**: Other gRPC-REST transcoding solutions like [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway)
+require you to run a proxy server which translates the gRPC requests into REST requests. Since
+tinc is embedded into your application this is not needed.
+
+- **Custom annotation instead of google's**: Google has their own custom annotation system for gRPC-REST transcoding (used by grpc-gateway),
+however this is not as flexible as tinc and doesn't allow for custom validation logic.
+
+- **Non-optional protobuf3**: Technically all fields in protobuf3 are optional, however for REST transcoding all fields must be present
+unless they are marked as optional in the schema.
+
+- **Stop on last error**: By default tinc will accumulate all errors and return a set of all errors instead of stopping on the first error.
+
+If you find tinc useful or have any feedback, please let me know on [GitHub](https://github.com/troymoder/crates).
